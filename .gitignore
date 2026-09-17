@@ -7,10 +7,11 @@ credentials.json
 *.key
 *.pem
 
-# --- Raw data (large, re-downloadable — keep out of the repo) ---
+# --- Raw dataset (large, re-downloadable — keep out of the repo) ---
+# Only the raw Amazon dataset under data/ is ignored. Derived per-review OUTput
+# under results/*.jsonl IS committed (e.g. the Step 6 balanced run's raw output,
+# which the assignment requires as a deliverable).
 data/
-*.jsonl.gz
-*.jsonl
 
 # --- Python caches / build artifacts ---
 __pycache__/
