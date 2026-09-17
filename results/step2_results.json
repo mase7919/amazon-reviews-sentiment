@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "experiment": "Step 2 binary sentiment scoring (first 100 records)",
+    "created_utc": "2026-09-16T22:58:14+00:00",
+    "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+    "api_base_url": "http://dobolyi.com:9001/v1",
+    "temperature": 0.0,
+    "num_reviews": 100,
+    "selection": "first 100 records in original file order (no balancing/randomization)",
+    "ground_truth_rule": "rating>=4 -> POSITIVE; rating<4 -> NEGATIVE (derived after prediction)",
+    "prompt_file": "prompts/sentiment_prompt.txt",
+    "prompt_sha256": "dbb2e6e41001578a80bcc56d1f9c5ff627d2016a75d0b6dc434f10a2f85b4135",
+    "rating_not_sent_to_model": true
+  },
+  "metrics": {
+    "total_reviews": 100,
+    "actual_positive_count": 93,
+    "actual_positive_pct": 93.0,
+    "actual_negative_count": 7,
+    "actual_negative_pct": 7.0,
+    "overall_accuracy_pct": 98.0,
+    "matched_count": 98,
+    "mismatch_count": 2,
+    "failed_calls": 0,
+    "confusion_matrix": {
+      "axis_note": "rows=actual, columns=predicted",
+      "actual_POS_pred_POS": 92,
+      "actual_POS_pred_NEG": 1,
+      "actual_NEG_pred_POS": 1,
+      "actual_NEG_pred_NEG": 6
+    },
+    "class_performance": {
+      "POSITIVE_recall_pct": 98.92,
+      "NEGATIVE_recall_pct": 85.71,
+      "POSITIVE_precision_pct": 98.92,
+      "NEGATIVE_precision_pct": 85.71
+    }
+  },
+  "mismatches": [
+    {
+      "row": 18,
+      "rating": 5.0,
+      "title": "No note attached to sent gift card",
+      "text": "What a pretty gift card presentation , the recipient loved it ! I have one complaint , I took the time and wrote a short note to the recipient of the gift card so she knew who and why the GC was being sent but the note wasn’t attached. I’ve used the option to write a note on many occasions and several times it showed up without the note . I actually had to contact her to ask if she had checked her mail knowing it had arrived .",
+      "expected": "POSITIVE",
+      "predicted": "NEGATIVE"
+    },
+    {
+      "row": 99,
+      "rating": 3.0,
+      "title": "Easy to use",
+      "text": "Very easy to use. I wish I knew about it earlier",
+      "expected": "NEGATIVE",
+      "predicted": "POSITIVE"
+    }
+  ],
+  "failures": []
+}

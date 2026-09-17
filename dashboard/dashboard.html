@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon Gift Cards — Balanced Three-Class Sentiment · Step 6</title>
+<style>
+:root{
+  --bg:#0d1017; --panel:#151a24; --panel-2:#1b2130; --line:#262e3f;
+  --text:#e9ecf3; --muted:#98a2b8; --faint:#6b7689;
+  --positive:#34d399; --positive-soft:rgba(52,211,153,.14);
+  --neutral:#a3a3ff;  --neutral-soft:rgba(163,163,255,.14);
+  --negative:#fb7185; --negative-soft:rgba(251,113,133,.14);
+  --correct:#2dd4bf; --incorrect:#fb7185; --accent:#a78bfa; --warn:#fbbf24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.5; -webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 28px 72px}
+header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+.kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+h1{font-size:29px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:14px;margin-top:8px}
+.meta{color:var(--faint);font-size:12px;margin-top:12px}.meta code{background:var(--panel-2);padding:1px 5px;border-radius:4px;color:var(--accent)}
+section{margin-bottom:44px}
+h2{font-size:19px;font-weight:600;margin-bottom:6px}
+.sec-desc{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat .label{font-size:12px;color:var(--muted)} .stat .value{font-size:27px;font-weight:700;margin-top:6px}
+.stat .note{font-size:12px;color:var(--faint);margin-top:2px}
+.value.teal{color:var(--correct)}.value.rose{color:var(--incorrect)}.value.purple{color:var(--accent)}
+.value.green{color:var(--positive)}.value.blu{color:var(--neutral)}.value.red{color:var(--negative)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chartbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 20px 22px}
+.chartbox h3{font-size:14px;font-weight:600;margin-bottom:4px}.chartbox .cap{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.bar{display:flex;height:30px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.bar .seg{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;min-width:0;color:#0d1017}
+.bar .seg.pos{background:var(--positive)}.bar .seg.neu{background:var(--neutral);color:#0d1017}
+.bar .seg.neg{background:var(--negative)}
+.bar .seg.ok{background:var(--correct)}.bar .seg.no{background:var(--incorrect)}
+.legend{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}.legend span{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;flex:none}
+.donut .inner{width:84px;height:84px;border-radius:50%;background:var(--panel);display:grid;place-items:center;text-align:center}
+.donut .inner b{font-size:18px;display:block;line-height:1.1}.donut .inner small{font-size:11px;color:var(--muted)}
+.matrix{width:100%;border-collapse:collapse;max-width:560px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.matrix th,.matrix td{padding:13px 12px;text-align:center;font-size:13px}
+.matrix thead th{color:var(--muted);background:var(--panel-2);font-size:12px}
+.matrix .rowhead{font-weight:600;background:var(--panel-2);white-space:nowrap;text-align:left}
+.matrix td.cell{font-size:20px;font-weight:700;border:1px solid var(--line)}
+.matrix td .sub{display:block;font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px}
+.cmat{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.perf{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.perf .cls{font-weight:650;font-size:14.5px}
+.perf .row{display:flex;justify-content:space-between;margin:11px 0 4px;font-size:12.5px;color:var(--muted)}
+.perf .track{height:9px;border-radius:6px;background:var(--panel-2);overflow:hidden}
+.perf .fill{height:100%;border-radius:6px}
+.fill.g{background:var(--positive)}.fill.b{background:var(--neutral)}.fill.r{background:var(--negative)}
+.context{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:18px 20px;font-size:14px}
+.context ul{list-style:none;display:grid;gap:8px}.context li{color:var(--muted)}.context b{color:var(--text)}.context .hl{color:var(--warn)}
+/* step7: star rating distribution */
+.rating-wrap{display:flex;align-items:flex-end;gap:22px;justify-content:center;padding-top:8px}
+.rbar{display:flex;flex-direction:column;align-items:center;gap:8px}
+.rbar .rbar-val{font-size:15px;font-weight:700}
+.rbar .rbar-fill{width:30px;border-radius:5px 5px 2px 2px;min-height:3px}
+.rbar .rbar-label{font-size:11.5px;color:var(--muted)}
+.rbar.c1 .rbar-fill{background:var(--negative)}
+.rbar.c2 .rbar-fill{background:#fb923c}
+.rbar.c3 .rbar-fill{background:var(--neutral)}
+.rbar.c4 .rbar-fill{background:#34d399}
+.rbar.c5 .rbar-fill{background:var(--positive)}
+/* step7: actual vs predicted */
+.ap-row{display:grid;grid-template-columns:110px 1fr 1fr;gap:14px;align-items:center;margin:12px 0}
+.ap-label{font-size:13px;font-weight:650}
+.ap-track{display:flex;align-items:center;gap:8px}
+.ap-track .ap-cap{font-size:11px;color:var(--faint);min-width:34px;text-align:right}
+.ap-track .ap-bar{height:18px;border-radius:5px;min-width:2px}
+.ap-legend{display:flex;gap:18px;margin-top:14px;color:var(--muted);font-size:12.5px}
+/* step7: recall rows */
+.recall-rows{display:grid;gap:16px}
+.recall-row .rr-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+.recall-row .rr-top b{font-weight:700}
+.recall-row .rr-track{height:22px;border-radius:6px;background:var(--panel-2);overflow:hidden;position:relative}
+.recall-row .rr-fill{height:100%;border-radius:6px}
+.recall-row .rr-fill.g{background:var(--positive)}.recall-row .rr-fill.b{background:var(--neutral)}.recall-row .rr-fill.r{background:var(--negative)}
+.recall-row .rr-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:#0d1017}
+/* confusion emphasis (scale preserved) */
+td.emph{box-shadow:inset 0 -3px 0 var(--incorrect);color:#fff}
+td.emph .sub{color:var(--incorrect);font-weight:700}
+/* step2 vs step6 compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cmp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.cmp .cmp-tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.cmp .cmp-num{font-size:26px;font-weight:700;margin-top:4px}
+.cmp .cmp-sub{font-size:12px;color:var(--muted)}
+.cmp .cmp-note{font-size:12px;color:var(--faint);margin-top:6px;font-style:italic}
+.warn{color:var(--warn)}
+/* emotion compact */
+.emo-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.emo-box h4{font-size:13px;font-weight:650;margin-bottom:10px}
+.emo-pair{display:grid;grid-template-columns:90px 1fr 34px;gap:8px;align-items:center;font-size:12px;margin:4px 0;color:var(--muted)}
+.emo-pair b{color:var(--text);text-align:right}
+.emo-pair .th{height:9px;border-radius:5px}
+.emo-agree{margin-top:14px;font-size:13px;color:var(--muted)}
+.emo-agree b{color:var(--accent)}
+.mcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.mcard{background:var(--negative-soft);border:1px solid rgba(251,113,133,.35);border-radius:12px;padding:14px}
+.mcard-top{display:flex;justify-content:space-between;font-size:12px;color:var(--incorrect);margin-bottom:6px}
+.mcard-row{font-weight:700}.mcard-title{font-weight:650;font-size:13.5px}.mcard-text{font-size:12.5px;color:var(--muted);margin:7px 0 10px}
+.mcard-pred{display:flex;align-items:center;gap:8px}.arrow{color:var(--muted)}
+.mcard+.mcard-note{display:block}
+.chip{font-size:11px;font-weight:650;padding:3px 9px;border-radius:20px;display:inline-block}
+.chip.positive{color:var(--positive);background:var(--positive-soft)}
+.chip.neutral{color:var(--neutral);background:var(--neutral-soft)}
+.chip.negative{color:var(--negative);background:var(--negative-soft)}
+.dot{display:inline-block;width:20px;height:20px;border-radius:50%;line-height:20px;font-size:11px;font-weight:700;text-align:center}
+.dot.ok{background:var(--positive-soft);color:var(--positive)}.dot.bad{background:var(--negative-soft);color:var(--negative)}
+.stars{color:var(--warn);letter-spacing:1px}
+.filter-bar{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:12px}
+.fil-group{display:flex;flex-direction:column;gap:6px}
+.fil-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.fbtns{display:flex;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.fbtn{background:transparent;border:0;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer}
+.fbtn:hover{color:var(--text)}.fbtn.active{background:var(--accent);color:#12141c}
+tr.hidden-row{display:none}
+.live-count{margin-left:auto;font-size:13px;font-weight:600;color:var(--text);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:8px 14px;white-space:nowrap}
+.live-count b{color:var(--accent)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table.reviews{width:100%;border-collapse:collapse;font-size:12.5px;min-width:860px}
+table.reviews th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:10px 12px;font-size:11px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+table.reviews td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.reviews td.c{text-align:center;white-space:nowrap}
+table.reviews tr:hover td{background:rgba(167,139,250,.04)}
+table.reviews tr.row-err td{background:rgba(251,113,133,.09)}
+table.reviews tr.row-err:hover td{background:rgba(251,113,133,.15)}
+footer{color:var(--faint);font-size:12px;border-top:1px solid var(--line);padding-top:18px}
+@media (max-width:840px){.two-col,.perf-grid{grid-template-columns:1fr}.wrap{padding:24px 16px 56px}h1{font-size:23px}}
+</style></head><body><div class="wrap">
+
+<header>
+  <div class="kicker">MBAX 6418 · Assignment 1</div>
+  <h1>Amazon Gift Cards — Balanced Three-Class Sentiment</h1>
+  <div class="sub">A balanced 150-review sample (50 POSITIVE / 50 NEUTRAL / 50 NEGATIVE, seed&#8202;6418) scored by the three-class classifier.</div>
+  <div class="meta">model <code>cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit</code> · endpoint <code>http://dobolyi.com:9001/v1</code> · temperature <code>0.0</code> · source <code>results/step6_metrics.json</code></div>
+</header>
+
+<section>
+  <h2>Headline results</h2>
+  <div class="sec-desc">Balanced three-class run on 150 reviews. Figures are read directly from the saved Step 6 output.</div>
+  <div class="stats">
+    <div class="stat"><div class="label">Total reviews</div><div class="value">150</div><div class="note">balanced sample</div></div>
+    <div class="stat"><div class="label">Overall accuracy</div><div class="value teal">71.33%</div><div class="note">macro recall 71.33%</div></div>
+    <div class="stat"><div class="label">Correct</div><div class="value green">107</div><div class="note">of 150</div></div>
+    <div class="stat"><div class="label">Mismatches</div><div class="value rose">43</div><div class="note">shown below</div></div>
+    <div class="stat"><div class="label">Actual POSITIVE</div><div class="value green">50</div><div class="note">rating 4–5</div></div>
+    <div class="stat"><div class="label">Actual NEUTRAL</div><div class="value blu">50</div><div class="note">rating 3</div></div>
+    <div class="stat"><div class="label">Actual NEGATIVE</div><div class="value red">50</div><div class="note">rating 1–2</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Class balance &amp; correctness</h2>
+  <div class="sec-desc">The sample is deliberately balanced, so no class dominates.</div>
+  <div class="two-col">
+    <div class="chartbox">
+      <h3>Actual class split (balanced)</h3>
+      <div class="cap">Equal thirds by design — the three-class evaluation is not skewed by imbalance.</div>
+      <div class="bar">
+        <div class="seg pos" style="width:33.33%">POSITIVE 50</div>
+        <div class="seg neu" style="width:33.33%">NEUTRAL 50</div>
+        <div class="seg neg" style="width:33.34%">NEGATIVE 50</div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--positive)"></i>POSITIVE (50)</span>
+        <span><i style="background:var(--neutral)"></i>NEUTRAL (50)</span>
+        <span><i style="background:var(--negative)"></i>NEGATIVE (50)</span>
+      </div>
+    </div>
+    <div class="chartbox">
+      <h3>Correct vs incorrect</h3>
+      <div class="cap">Overall predictions</div>
+      <div class="donut-wrap">
+        <div class="donut" style="background:conic-gradient(var(--correct) 0 71.33%, var(--incorrect) 71.33% 100%)"><div class="inner"><b>71.33%</b><small>accuracy</small></div></div>
+        <div class="legend" style="flex-direction:column;gap:10px">
+          <span><i style="background:var(--correct)"></i>Correct 107</span>
+          <span><i style="background:var(--incorrect)"></i>Mismatched 43</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Star-rating distribution</h2>
+  <div class="sec-desc">Counts for each star rating in the 150-review sample. The sample is balanced by
+    <b>sentiment class</b> (50/50/50), <b>not</b> by individual star rating.</div>
+  <div class="chartbox"><div class="rating-wrap"><div class="rbar c1"><div class="rbar-val">44</div><div class="rbar-fill" style="height:186px"></div><div class="rbar-label">1&#9733;</div></div><div class="rbar c2"><div class="rbar-val">6</div><div class="rbar-fill" style="height:34px"></div><div class="rbar-label">2&#9733;</div></div><div class="rbar c3"><div class="rbar-val">50</div><div class="rbar-fill" style="height:210px"></div><div class="rbar-label">3&#9733;</div></div><div class="rbar c4"><div class="rbar-val">3</div><div class="rbar-fill" style="height:22px"></div><div class="rbar-label">4&#9733;</div></div><div class="rbar c5"><div class="rbar-val">47</div><div class="rbar-fill" style="height:198px"></div><div class="rbar-label">5&#9733;</div></div></div>
+    <div class="sec-desc" style="margin-top:16px;margin-bottom:0">Total = <b>150</b> reviews
+      (44 × 1★, 6 × 2★, 50 × 3★, 3 × 4★, 47 × 5★).</div></div>
+</section>
+
+<section>
+  <h2>Confusion matrix</h2>
+  <div class="sec-desc">Rows = actual class; columns = predicted class.</div>
+  <div class="cmat">
+    <table class="matrix">
+      <thead><tr><th></th><th>Predicted POSITIVE</th><th>Predicted NEUTRAL</th><th>Predicted NEGATIVE</th></tr></thead>
+      <tbody><tr><th class="rowhead">Actual POSITIVE (50)</th><td class="cell" style="background:rgba(52,211,153,0.59)">46<span class="sub">ok</span></td><td class="cell" style="background:rgba(248,113,113,0.48)">4<span class="sub">P→N</span></td><td class="cell" style="background:rgba(248,113,113,0.08)">0<span class="sub">P→N</span></td></tr><tr><th class="rowhead">Actual NEUTRAL (50)</th><td class="cell" style="background:rgba(248,113,113,0.48)">9<span class="sub">N→P</span></td><td class="cell" style="background:rgba(52,211,153,0.21)">12<span class="sub">ok</span></td><td class="cell emph" style="background:rgba(248,113,113,0.48)">29<span class="sub">N→N</span></td></tr><tr><th class="rowhead">Actual NEGATIVE (50)</th><td class="cell" style="background:rgba(248,113,113,0.08)">0<span class="sub">N→P</span></td><td class="cell" style="background:rgba(248,113,113,0.48)">1<span class="sub">N→N</span></td><td class="cell" style="background:rgba(52,211,153,0.62)">49<span class="sub">ok</span></td></tr></tbody>
+    </table>
+    <div class="chartbox" style="flex:1;min-width:280px">
+      <h3>Where the 50 NEUTRAL reviews went</h3>
+      <ul style="list-style:none;display:grid;gap:9px;font-size:13.5px;color:var(--muted)">
+        <li><b style="color:var(--positive)">9</b> → predicted POSITIVE</li>
+        <li><b style="color:var(--neutral)">12</b> → predicted NEUTRAL</li>
+        <li><b style="color:var(--negative)">29</b> → predicted NEGATIVE</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Prediction patterns</h2>
+  <div class="two-col">
+    <div class="chartbox">
+      <h3>Actual vs predicted class counts</h3>
+      <div class="cap">Ground-truth (actual) versus what the model predicted, per class.</div>
+      <div class="ap-row"><div class="ap-label">POSITIVE</div><div class="ap-track"><span class="ap-cap">Actual 50</span><div class="ap-bar" style="width:64.1%;background:var(--positive)"></div></div><div class="ap-track"><span class="ap-cap">Pred 55</span><div class="ap-bar" style="width:70.5%;background:var(--accent)"></div></div></div><div class="ap-row"><div class="ap-label">NEUTRAL</div><div class="ap-track"><span class="ap-cap">Actual 50</span><div class="ap-bar" style="width:64.1%;background:var(--neutral)"></div></div><div class="ap-track"><span class="ap-cap">Pred 17</span><div class="ap-bar" style="width:21.8%;background:var(--accent)"></div></div></div><div class="ap-row"><div class="ap-label">NEGATIVE</div><div class="ap-track"><span class="ap-cap">Actual 50</span><div class="ap-bar" style="width:64.1%;background:var(--negative)"></div></div><div class="ap-track"><span class="ap-cap">Pred 78</span><div class="ap-bar" style="width:100.0%;background:var(--accent)"></div></div></div>
+      <div class="ap-legend"><span><i style="display:inline-block;width:11px;height:11px;background:var(--positive);border-radius:3px"></i>&nbsp;Actual</span>
+        <span><i style="display:inline-block;width:11px;height:11px;background:var(--accent);border-radius:3px"></i>&nbsp;Predicted</span></div>
+    </div>
+    <div class="chartbox">
+      <h3>Correctly classified per class (recall)</h3>
+      <div class="cap">How often each actual class was classified correctly. NEUTRAL is clearly the weak class.</div>
+      <div class="recall-row"><div class="rr-top"><span>POSITIVE &nbsp;<span style="color:var(--muted)">(46/50 correct)</span></span><b>92.0%</b></div><div class="rr-track"><div class="rr-fill g" style="width:92.0%"></div><span class="rr-pct">92.0%</span></div></div><div class="recall-row"><div class="rr-top"><span>NEUTRAL &nbsp;<span style="color:var(--muted)">(12/50 correct)</span></span><b>24.0%</b></div><div class="rr-track"><div class="rr-fill b" style="width:24.0%"></div><span class="rr-pct">24.0%</span></div></div><div class="recall-row"><div class="rr-top"><span>NEGATIVE &nbsp;<span style="color:var(--muted)">(49/50 correct)</span></span><b>98.0%</b></div><div class="rr-track"><div class="rr-fill r" style="width:98.0%"></div><span class="rr-pct">98.0%</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How each class performed</h2>
+  <div class="sec-desc">Recall (of actual class, classified right) and precision (of a prediction, was it right).</div>
+  <div class="perf-grid"><div class="perf"><div class="cls" style="color:var(--positive)">POSITIVE</div><div class="row"><span>Recall (46/50)</span><b>92.0%</b></div><div class="track"><div class="fill g" style="width:92.0%"></div></div><div class="row"><span>Precision</span><b>83.64%</b></div><div class="track"><div class="fill g" style="width:83.64%"></div></div></div><div class="perf"><div class="cls" style="color:var(--neutral)">NEUTRAL</div><div class="row"><span>Recall (12/50)</span><b>24.0%</b></div><div class="track"><div class="fill b" style="width:24.0%"></div></div><div class="row"><span>Precision</span><b>70.59%</b></div><div class="track"><div class="fill b" style="width:70.59%"></div></div></div><div class="perf"><div class="cls" style="color:var(--negative)">NEGATIVE</div><div class="row"><span>Recall (49/50)</span><b>98.0%</b></div><div class="track"><div class="fill r" style="width:98.0%"></div></div><div class="row"><span>Precision</span><b>62.82%</b></div><div class="track"><div class="fill r" style="width:62.82%"></div></div></div></div>
+</section>
+
+<section>
+  <h2>Primary-emotion comparison (secondary)</h2>
+  <div class="sec-desc">Two independent emotion methods on the same 150 reviews — an agreement comparison, not an accuracy test.</div>
+  <div class="chartbox">
+<div class="emo-2col">
+  <div class="emo-box"><h4>LLM emotion distribution</h4><div class="emo-pair"><span>anger</span><div class="th" style="width:100%;background:var(--accent)"></div><b>66</b></div><div class="emo-pair"><span>anticipation</span><div class="th" style="width:0%;background:var(--accent)"></div><b>0</b></div><div class="emo-pair"><span>disgust</span><div class="th" style="width:0%;background:var(--accent)"></div><b>0</b></div><div class="emo-pair"><span>fear</span><div class="th" style="width:2%;background:var(--accent)"></div><b>1</b></div><div class="emo-pair"><span>joy</span><div class="th" style="width:80%;background:var(--accent)"></div><b>53</b></div><div class="emo-pair"><span>sadness</span><div class="th" style="width:15%;background:var(--accent)"></div><b>10</b></div><div class="emo-pair"><span>surprise</span><div class="th" style="width:5%;background:var(--accent)"></div><b>3</b></div><div class="emo-pair"><span>trust</span><div class="th" style="width:26%;background:var(--accent)"></div><b>17</b></div></div>
+  <div class="emo-box"><h4>NRC emotion distribution</h4><div class="emo-pair"><span>anger</span><div class="th" style="width:16%;background:var(--correct)"></div><b>12</b></div><div class="emo-pair"><span>anticipation</span><div class="th" style="width:100%;background:var(--correct)"></div><b>77</b></div><div class="emo-pair"><span>disgust</span><div class="th" style="width:1%;background:var(--correct)"></div><b>1</b></div><div class="emo-pair"><span>fear</span><div class="th" style="width:4%;background:var(--correct)"></div><b>3</b></div><div class="emo-pair"><span>joy</span><div class="th" style="width:16%;background:var(--correct)"></div><b>12</b></div><div class="emo-pair"><span>sadness</span><div class="th" style="width:4%;background:var(--correct)"></div><b>3</b></div><div class="emo-pair"><span>surprise</span><div class="th" style="width:1%;background:var(--correct)"></div><b>1</b></div><div class="emo-pair"><span>trust</span><div class="th" style="width:53%;background:var(--correct)"></div><b>41</b></div></div>
+</div>
+<div class="emo-agree">LLM and the NRC word list agree on <b>15.33%</b> of the 150 reviews. Neither method is
+  treated as ground truth here — this is an agreement comparison between two different approaches.</div>
+</div>
+</section>
+
+<section>
+  <h2>How to read this</h2>
+  <div class="context">
+    <ul>
+      <li>This is a <b>balanced</b> 150-review sample: <b>50 POSITIVE / 50 NEUTRAL / 50 NEGATIVE</b> (seed 6418).</li>
+      <li>An always-one-class classifier would score about <b class="hl">33%</b> here, so 71.33% is not directly comparable to the earlier 98% binary number — both the sample distribution and the classification task changed (three classes vs two).</li>
+      <li>Watch NEUTRAL: because it is defined by absence of a clear lean, it is the class the model most often (<b>38 of 50</b>) failed to recognize.</li>
+    </ul>
+    
+<div class="compare">
+  <div class="cmp"><div class="cmp-tag">Step 2 · binary (2 classes)</div><div class="cmp-num">98.0%</div>
+    <div class="cmp-sub">98 / 100 correct</div><div class="cmp-note">unbalanced — sample was 93% POSITIVE</div></div>
+  <div class="cmp"><div class="cmp-tag">Step 6 · balanced 3-class</div><div class="cmp-num">71.33%</div>
+    <div class="cmp-sub">107 / 150 correct</div><div class="cmp-note">balanced 50 / 50 / 50</div></div>
+</div>
+<ul style="list-style:none;display:grid;gap:8px;margin-top:14px;font-size:13.5px;color:var(--muted)">
+  <li>These two percentages are <b style="color:var(--text)">NOT directly comparable</b>.</li>
+  <li>• The class distributions differ (Step 2 was 93% POSITIVE; Step 6 is balanced 50/50/50).</li>
+  <li>• The task changed from <b>2 classes</b> to <b>3 classes</b> (NEUTRAL added).</li>
+  <li>• The drop from 98.0% to 71.33% is a product of these changes, not simply the
+      model <span class="warn">"getting worse."</span></li>
+</ul>
+
+  </div>
+</section>
+
+<section>
+  <h2>Mismatches (43)</h2>
+  <div class="sec-desc">First 12 mismatches shown; use the review table filter (Result = Mismatched) to see all.</div>
+  <div class="mcards">
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 3319</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">I gave these as christmas gifts to my nieces and ...</div>
+      <div class="mcard-text">I gave these as christmas gifts to my nieces and nephews. They appreciated the gift and credit card of their own feel. Unfortunately Auntie was expected to take them to the movies …</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 9320</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Need be more Attractive!!!</div>
+      <div class="mcard-text">Can be a little more attractive for kids.</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 11101</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Gift card</div>
+      <div class="mcard-text">Easy to use and reload</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip positive">predicted POSITIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 12466</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Good value</div>
+      <div class="mcard-text">Good value</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip positive">predicted POSITIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 15284</span><span class="mcard-rating">rating 2.0</span></div>
+      <div class="mcard-title">These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.</div>
+      <div class="mcard-text">These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.</div>
+      <div class="mcard-pred"><span class="chip negative">actual NEGATIVE</span>
+        <span class="arrow">→</span><span class="chip neutral">predicted NEUTRAL</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 35757</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Almost threw it in the trash! Needs better labeling on outside envelope.</div>
+      <div class="mcard-text">I love Amazon and shop continuously on it.  I bought a gift card for my mom for Xmas and the tracking info actually said I would get it one day earlier than the other products I or…</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 37502</span><span class="mcard-rating">rating 5.0</span></div>
+      <div class="mcard-title">Works</div>
+      <div class="mcard-text">What else can I say? It works!</div>
+      <div class="mcard-pred"><span class="chip positive">actual POSITIVE</span>
+        <span class="arrow">→</span><span class="chip neutral">predicted NEUTRAL</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 38692</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Great gift to me</div>
+      <div class="mcard-text">The design is cool. Overall GOOD.</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip positive">predicted POSITIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 52024</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">Filling a leaky bucket</div>
+      <div class="mcard-text">The process is easy, which is good because Kindle raids that balance first.  When you go back later to use the balance, it&#x27;s reduced or gone.</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 63860</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">ill try most things, once</div>
+      <div class="mcard-text">glad to get a ten dollar reward to try it out.</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip positive">predicted POSITIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 64683</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">misleading</div>
+      <div class="mcard-text">Figured out that this whole mess was because there were more than a card in some of the boxes (one worked, the other not).</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-top"><span class="mcard-row">Row 66165</span><span class="mcard-rating">rating 3.0</span></div>
+      <div class="mcard-title">It&#x27;s not the product, it&#x27;s how the package was handled/delivered</div>
+      <div class="mcard-text">The gift cards are great. The only reason for the 3star review is how I got my package.... All of the tin Santa cases for the gift cards are all dented... The package I received ha…</div>
+      <div class="mcard-pred"><span class="chip neutral">actual NEUTRAL</span>
+        <span class="arrow">→</span><span class="chip negative">predicted NEGATIVE</span></div>
+    </div></div>
+</section>
+
+<section>
+  <h2>All 150 reviews</h2>
+  <div class="sec-desc">Every balanced review. Filter to explore; pink rows are mismatches.</div>
+  <div class="filter-bar">
+    <div class="fil-group"><span class="fil-label">Result</span><div class="fbtns" data-group="result"><button class="fbtn active" data-v="all">All</button><button class="fbtn" data-v="correct">Correct</button><button class="fbtn" data-v="mismatched">Mismatched</button></div></div>
+    <div class="fil-group"><span class="fil-label">Actual</span><div class="fbtns" data-group="actual"><button class="fbtn active" data-v="all">All</button><button class="fbtn" data-v="positive">POSITIVE</button><button class="fbtn" data-v="neutral">NEUTRAL</button><button class="fbtn" data-v="negative">NEGATIVE</button></div></div>
+    <div class="fil-group"><span class="fil-label">Predicted</span><div class="fbtns" data-group="pred"><button class="fbtn active" data-v="all">All</button><button class="fbtn" data-v="positive">POSITIVE</button><button class="fbtn" data-v="neutral">NEUTRAL</button><button class="fbtn" data-v="negative">NEGATIVE</button></div></div>
+    <div class="fil-group"><span class="fil-label">Rating</span><div class="fbtns" data-group="rating"><button class="fbtn active" data-v="all">All</button><button class="fbtn" data-v="1">1</button><button class="fbtn" data-v="2">2</button><button class="fbtn" data-v="3">3</button><button class="fbtn" data-v="4">4</button><button class="fbtn" data-v="5">5</button></div></div>
+    <div class="live-count" id="liveCount">Showing <b>150</b> of 150 reviews</div>
+  </div>
+  <div class="table-wrap">
+    <table class="reviews">
+      <thead><tr><th>Row</th><th>Rating</th><th>Title</th><th>Review text</th><th>Actual</th><th>Predicted</th><th>Match</th></tr></thead>
+      <tbody>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">836</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great gift card for friends in holiday season</td>
+      <td class="t" title="Great design of gift card for friends to eat some chipotle food in holiday season. Easy to use.">Great design of gift card for friends to eat some chipotle food in holiday season. Easy to use.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">3319</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">I gave these as christmas gifts to my nieces and ...</td>
+      <td class="t" title="I gave these as christmas gifts to my nieces and nephews. They appreciated the gift and credit card of their own feel. Unfortunately Auntie was expected to take them to the movies and provide a meal with this gift.">I gave these as christmas gifts to my nieces and nephews. They appreciated the gift and credit card of their own feel. Unfortunately Auntie …</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">4219</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Do not buy</td>
+      <td class="t" title="This is a scam - can&#x27;t be used for Spotify, it&#x27;s a joke">This is a scam - can&#x27;t be used for Spotify, it&#x27;s a joke</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">9320</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Need be more Attractive!!!</td>
+      <td class="t" title="Can be a little more attractive for kids.">Can be a little more attractive for kids.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">11101</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Gift card</td>
+      <td class="t" title="Easy to use and reload">Easy to use and reload</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">11345</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Amazing</td>
+      <td class="t" title="He loved it!">He loved it!</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">11607</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">As expected</td>
+      <td class="t" title="As expected">As expected</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">12466</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Good value</td>
+      <td class="t" title="Good value">Good value</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">14529</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Excellent</td>
+      <td class="t" title="Loved it">Loved it</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="negative"
+        data-pred="neutral" data-rating="2">
+      <td class="c">15284</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.</td>
+      <td class="t" title="These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.">These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">17623</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Cute Box</td>
+      <td class="t" title="Who doesn&#x27;t love an amazon card">Who doesn&#x27;t love an amazon card</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">18871</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Don’t expect this card to function like a typical Visa</td>
+      <td class="t" title="Don’t buy this card. This card doesn’t work with Apple Wallet (cannot get added). It doesn’t work at gas station either. I ended up adding it back to my Amazon account.">Don’t buy this card. This card doesn’t work with Apple Wallet (cannot get added). It doesn’t work at gas station either. I ended up adding i…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">22438</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Ok</td>
+      <td class="t" title="Ok">Ok</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">22975</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great for spending. Not great for sinking in jello</td>
+      <td class="t" title="I put this gift card in jello for my sisters-in-laws birthday... the tin floats. Man did i not see that coming. If you buy this to put it in jello, maybe get some rocks for the inside. Otherwise it will float. Clearly a stapler is easier to use. The card spends great tho! Highly recommend if you don’t need to put in jello... also still recommend if you do need to put it in jello.">I put this gift card in jello for my sisters-in-laws birthday... the tin floats. Man did i not see that coming. If you buy this to put it in…</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">23069</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Love the iTunes but no good 😢</td>
+      <td class="t" title="The numbers &amp; letters is wrong I want a new&lt;br /&gt;$200.00 card. Because the one I have look like someone had used it. I scratch it off but someone&lt;br /&gt;knew the numbers, letters I was the one scratch it off">The numbers &amp; letters is wrong I want a new&lt;br /&gt;$200.00 card. Because the one I have look like someone had used it. I scratch it off but so…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">26928</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">False advertising</td>
+      <td class="t" title="Ripp off. The offer was  $50.00 for $40.00 and the charged the $50.00. Dont fall for it. The cards did arrive timely but not at the price avertized.">Ripp off. The offer was  $50.00 for $40.00 and the charged the $50.00. Dont fall for it. The cards did arrive timely but not at the price av…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">27652</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Always a hit</td>
+      <td class="t" title="Great gift">Great gift</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">29776</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">damaged</td>
+      <td class="t" title="Bought this as a gift for my grandson&#x27;s birthday.  The gift card looks OK, but the Happy Birthday gift card holder was ripped and looks awful.  I&#x27;ll have to tape it together, which will make for a lousy presentation.  Disappointing.">Bought this as a gift for my grandson&#x27;s birthday.  The gift card looks OK, but the Happy Birthday gift card holder was ripped and looks awfu…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">31152</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="Great gift">Great gift</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">31200</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">For those sewers in your life.</td>
+      <td class="t" title="Great gift card for those crafty people on your list.">Great gift card for those crafty people on your list.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">32438</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Gift card</td>
+      <td class="t" title="Excellent seller and product">Excellent seller and product</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">33987</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Auto-Renewal caused a big problem</td>
+      <td class="t" title="Even though the price was great, I can&#x27;t recommend purchasing Office 365 through Amazon.  Cancelling the auto-renewal was easy but in the eyes of MS, my office account was locked to Amazon.  Took lengthy phone calls with MS support over several weeks to resolve.">Even though the price was great, I can&#x27;t recommend purchasing Office 365 through Amazon.  Cancelling the auto-renewal was easy but in the ey…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">34148</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Not a Bear.  Tradition Ruined</td>
+      <td class="t" title="I&#x27;ve been getting the Amazon Gund bear every year.  This year the bear was replaced by socks.  Very sad end to a great tradition from the Amazon promotion team..">I&#x27;ve been getting the Amazon Gund bear every year.  This year the bear was replaced by socks.  Very sad end to a great tradition from the Am…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">35757</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Almost threw it in the trash! Needs better labeling on outside envelope.</td>
+      <td class="t" title="I love Amazon and shop continuously on it.  I bought a gift card for my mom for Xmas and the tracking info actually said I would get it one day earlier than the other products I ordered at the same time.  So when a non descript sealed envelope came in a box with something else I tossed it on the counter thinking it was junk mail like so many other companies send with their products.  I actually forgot about the GC as I expected it to come snail mail solo.  So this envelope sat for a few days and as I was tossing it into the recycle bin I decided to tear it open.  What to my surprise was inside but another envelope, the holiday card and gift card.  Wow was I surprised.  Since the outside envelope is just packaging it should be better labeled as to the contents.">I love Amazon and shop continuously on it.  I bought a gift card for my mom for Xmas and the tracking info actually said I would get it one …</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="positive"
+        data-pred="neutral" data-rating="5">
+      <td class="c">37502</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Works</td>
+      <td class="t" title="What else can I say? It works!">What else can I say? It works!</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">37839</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="just what i asked for">just what i asked for</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">38692</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Great gift to me</td>
+      <td class="t" title="The design is cool. Overall GOOD.">The design is cool. Overall GOOD.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">39071</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Cute</td>
+      <td class="t" title="Really cute for a birthday present.">Really cute for a birthday present.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">40023</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">One Star</td>
+      <td class="t" title="works fine">works fine</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="4">
+      <td class="c">41362</td>
+      <td class="c"><span class="stars" title="rating 4.0">★★★★&nbsp;4.0</span></td>
+      <td class="t">Ease of  use.</td>
+      <td class="t" title="It is so easy load. No problems at all.">It is so easy load. No problems at all.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">43306</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="Perfect gift for anyone.">Perfect gift for anyone.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">46714</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">works but could be simpler</td>
+      <td class="t" title="works but could be simpler to use">works but could be simpler to use</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">47095</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Don’t travel with Amazon credits.</td>
+      <td class="t" title="I tried to add some funds to purchase a movie and it let me add the funds but not use them to purchase the movies because I was out of the country when attempting this.  So I’ll go back to using Netflix which works wherever I go.">I tried to add some funds to purchase a movie and it let me add the funds but not use them to purchase the movies because I was out of the c…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">47495</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">To give a Christmas gift card in June someone screwed up. I asked for a different card front</td>
+      <td class="t" title="Wrong card.  I’ll keep this for Christmas">Wrong card.  I’ll keep this for Christmas</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">48445</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">an easy way to add money to my account</td>
+      <td class="t" title="a thumbs up">a thumbs up</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">49111</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Easy gift giving</td>
+      <td class="t" title="Nice">Nice</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">52024</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Filling a leaky bucket</td>
+      <td class="t" title="The process is easy, which is good because Kindle raids that balance first.  When you go back later to use the balance, it&#x27;s reduced or gone.">The process is easy, which is good because Kindle raids that balance first.  When you go back later to use the balance, it&#x27;s reduced or gone…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">52979</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Awesome</td>
+      <td class="t" title="Great deal">Great deal</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">57342</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Never received $5. bonus promised when purchased.</td>
+      <td class="t" title="Hi,  First, I never received the $5. bonus that I was supposed to get in November.  Second, I purchased these as Christmas gifts and because of all the reviews from people who had problems cashing the cards in, I was afraid to give them to anyone else.  I ended up applying all 3 cards to my own Amazon account.  Thank goodness they all worked but I couldn&#x27;t use them as gifts.  Third, the area on the back that you are supposed to &amp;#34;scratch&amp;#34; off was very difficult to remove and on one card, one of the letters beneath it was almost removed as well.  I had to try a couple of times before I got the right letter &amp; the card finally was approved.  I would not take a chance on an &amp;#34;offer&amp;#34; like this from Amazon again.">Hi,  First, I never received the $5. bonus that I was supposed to get in November.  Second, I purchased these as Christmas gifts and because…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">59472</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great gift box</td>
+      <td class="t" title="Loved the free gift box">Loved the free gift box</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">63279</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Box was crushed.</td>
+      <td class="t" title="The box was in terrible shape. I could not use it with the gift card.🙁">The box was in terrible shape. I could not use it with the gift card.🙁</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">63708</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Details unclear</td>
+      <td class="t" title="An attractive offer but i did not understand that the bonus would only apply to an order shipped directly from Amazon">An attractive offer but i did not understand that the bonus would only apply to an order shipped directly from Amazon</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">63860</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">ill try most things, once</td>
+      <td class="t" title="glad to get a ten dollar reward to try it out.">glad to get a ten dollar reward to try it out.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">64683</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">misleading</td>
+      <td class="t" title="Figured out that this whole mess was because there were more than a card in some of the boxes (one worked, the other not).">Figured out that this whole mess was because there were more than a card in some of the boxes (one worked, the other not).</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">66165</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">It&#x27;s not the product, it&#x27;s how the package was handled/delivered</td>
+      <td class="t" title="The gift cards are great. The only reason for the 3star review is how I got my package.... All of the tin Santa cases for the gift cards are all dented... The package I received had over 9 delivery stickers on it and was delayed for more than 6 days. There was no weather problems during those days....">The gift cards are great. The only reason for the 3star review is how I got my package.... All of the tin Santa cases for the gift cards are…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">66453</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">There was zero balance on card! It was supose to be $25.000 gift card!</td>
+      <td class="t" title="There was zero balance on gift card! It should have been $25.00. She went to use it and there was supose to be a  card with it and no card to say who was from! This needs to be corrected. .">There was zero balance on gift card! It should have been $25.00. She went to use it and there was supose to be a  card with it and no card t…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">66678</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Fast and easy.</td>
+      <td class="t" title="A last minute gift for Christmas.">A last minute gift for Christmas.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">67364</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Pretty but too thin</td>
+      <td class="t" title="It is too thin as I thought">It is too thin as I thought</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="4">
+      <td class="c">67518</td>
+      <td class="c"><span class="stars" title="rating 4.0">★★★★&nbsp;4.0</span></td>
+      <td class="t">Four Stars</td>
+      <td class="t" title="I liked the design.  It was easy to obtain and didn&#x27;t need additional gift wrapping.">I liked the design.  It was easy to obtain and didn&#x27;t need additional gift wrapping.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">69248</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Convenient</td>
+      <td class="t" title="The presentation tin was very nice.">The presentation tin was very nice.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="positive"
+        data-pred="neutral" data-rating="5">
+      <td class="c">71139</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Pretty</td>
+      <td class="t" title="Basic gift card">Basic gift card</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">71162</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Three Stars</td>
+      <td class="t" title="1">1</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">72345</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Thank</td>
+      <td class="t" title="Thank">Thank</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">73795</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Perfect Gift</td>
+      <td class="t" title="Perfect gift for someone who has most everything.">Perfect gift for someone who has most everything.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">75279</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Just a gift card</td>
+      <td class="t" title="Just a gift card">Just a gift card</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="2">
+      <td class="c">78562</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">It was supposed to be for mother&#x27;s day and I received one that looked more like it was intended for a birthday</td>
+      <td class="t" title="I received the wrong card. It was supposed to be for mother&#x27;s day and I received one that looked more like it was intended for a birthday, with balloons and such on it.">I received the wrong card. It was supposed to be for mother&#x27;s day and I received one that looked more like it was intended for a birthday, w…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">79123</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Arrived in 2 days 👍</td>
+      <td class="t" title="Quick delivery and great gift for friend traveling">Quick delivery and great gift for friend traveling</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">80207</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Service</td>
+      <td class="t" title="My card was all damaged and the outside envelope came later then said">My card was all damaged and the outside envelope came later then said</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">80294</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">good stuff</td>
+      <td class="t" title="loved the packaging. Makes giving a gift card much better.">loved the packaging. Makes giving a gift card much better.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">81266</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">its gift card</td>
+      <td class="t" title="its a gift card, not even sure why Amazon wants me to review it. It was a pain as I had credit card gift card I wanted to use and pay the remainder on my debit card, Amazon said &quot;no&quot;. So I had to buy this gift card with the other gift card so I could buy my gift and pay the difference on my own card, what a pain.">its a gift card, not even sure why Amazon wants me to review it. It was a pain as I had credit card gift card I wanted to use and pay the re…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="positive"
+        data-pred="neutral" data-rating="5">
+      <td class="c">83032</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Gift cards are neat</td>
+      <td class="t" title="They&#x27;re gift cards. Woohoo you payed to put money on a card. I know I did it. It was for good reason though.">They&#x27;re gift cards. Woohoo you payed to put money on a card. I know I did it. It was for good reason though.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">84579</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Hassle free Christmas</td>
+      <td class="t" title="I’m happy with my purchase. It made giving Christmas gifts so much easier to just buy this gift card online and get it delivered to my family member. This made my life so much easier and I’m glad I didn’t have to go out into traffic to get it.">I’m happy with my purchase. It made giving Christmas gifts so much easier to just buy this gift card online and get it delivered to my famil…</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">84881</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Three Stars</td>
+      <td class="t" title="Cute little Xmas case">Cute little Xmas case</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">85973</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Beware of packaging</td>
+      <td class="t" title="I purchased a $50 gift card and had it sent to a relative. All of the online documentation indicated the recipient would not know what was in the package.  There was a box during the order process for a To: and From: and I also added &quot;Do Not Open Until Christmas&quot;. The package arrived on the specified day but the label on the outside of the box did not have any indication of my note.  The recipient opened the box to find a sealed Amazon envelope and a packing slip.  The sealed envelope contained the gift card.  I figured the note should be here; nope.  I finally found the note on the packing slip.  OK, that&#x27;s fine, but the packing slip also had the description of what was inside the sealed envelope including the denomination of the gift card; so much for a surprise.">I purchased a $50 gift card and had it sent to a relative. All of the online documentation indicated the recipient would not know what was i…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">86392</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">There&#x27;s truly little reason to buy a Fandango gift card ...</td>
+      <td class="t" title="There&#x27;s truly little reason to buy a Fandango gift card.  About 20% of it goes to &amp;#34;Convenience Fees&amp;#34;.  Just buy a gift card to the theater directly.">There&#x27;s truly little reason to buy a Fandango gift card.  About 20% of it goes to &amp;#34;Convenience Fees&amp;#34;.  Just buy a gift card to the t…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">87290</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Gift card arrived water damaged</td>
+      <td class="t" title="Gift card arrived water damaged even though it was within plastic wrapping. Could not give it as a gift.">Gift card arrived water damaged even though it was within plastic wrapping. Could not give it as a gift.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">88065</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Hard to figure the value from outside.</td>
+      <td class="t" title="Hard to figure the value from outside.">Hard to figure the value from outside.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">88205</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Gift Cards how can you rate gift cards</td>
+      <td class="t" title="Gift Cards are gift cards...can&#x27;t go wrong there.">Gift Cards are gift cards...can&#x27;t go wrong there.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">88278</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Mystery Gift</td>
+      <td class="t" title="My daughter was gifted a card and has no way to determine value without redeeming!">My daughter was gifted a card and has no way to determine value without redeeming!</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">88805</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Overcharged</td>
+      <td class="t" title="I purchased a Brother Compact Monochrome Laser Printer, HL-L2370DWXL, which included a promotional offer, &quot;Buy any Brother XL Printer, and receive a $20 gift card... Gift Card must be added to Shopping Cart, and offer will be reflected at Checkout.&quot; I should not have been charged for this card. Very unhappy.">I purchased a Brother Compact Monochrome Laser Printer, HL-L2370DWXL, which included a promotional offer, &quot;Buy any Brother XL Printer, and r…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">90118</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Gift message was not left with package, my brother had no idea who it was from, very disappointing.</td>
+      <td class="t" title="Should have given the gift message with the gift card so my brother knew who it was from.">Should have given the gift message with the gift card so my brother knew who it was from.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">90351</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Attractive box and good gift for friends</td>
+      <td class="t" title="It&#x27;s always a good gift to thank friends. No other item is better than an Amazon gift card I believe. The gift box is attractive and good appearance.">It&#x27;s always a good gift to thank friends. No other item is better than an Amazon gift card I believe. The gift box is attractive and good ap…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">90794</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Delivery</td>
+      <td class="t" title="Missed promised date">Missed promised date</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">91556</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">OK Gift Card</td>
+      <td class="t" title="OK Gift Card but the package was damaged">OK Gift Card but the package was damaged</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">91578</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">No value!</td>
+      <td class="t" title="Tried to purchase with the card. Said zero value.">Tried to purchase with the card. Said zero value.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">92743</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">DIFFICULT TO USE. BRING BACK THE OLD FORMAT!</td>
+      <td class="t" title="DIFFICULT TO USE. BRING BACK THE OLD FORMAT!">DIFFICULT TO USE. BRING BACK THE OLD FORMAT!</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">94183</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Reloading my balance</td>
+      <td class="t" title="Love this site,never have any problems reloading.  Thank you.  C">Love this site,never have any problems reloading.  Thank you.  C</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="positive"
+        data-pred="neutral" data-rating="5">
+      <td class="c">94271</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">gift card</td>
+      <td class="t" title="It makes it quick and easy when I add money for my in app purchases">It makes it quick and easy when I add money for my in app purchases</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">94520</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">was not activated</td>
+      <td class="t" title="I was trying to buy some thing and kept on saying that the card was invalid">I was trying to buy some thing and kept on saying that the card was invalid</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">94930</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Came without being loaded</td>
+      <td class="t" title="I bought this as a gift for my mother on Christmas.  When she went to use it, it had no money on it.  I had bought others that worked fine, but this one did not.  Unfortunately it ruined a holiday  present for family.">I bought this as a gift for my mother on Christmas.  When she went to use it, it had no money on it.  I had bought others that worked fine, …</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">94939</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Doesn&#x27;t work</td>
+      <td class="t" title="It doesn&#x27;t work">It doesn&#x27;t work</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="2">
+      <td class="c">95229</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">I&#x27;m glad I did not give this card away as a ...</td>
+      <td class="t" title="I&#x27;m glad I did not give this card away as a gift because I would be embarrassed to find out that it did not work for the recipient when it was supposed to. I&#x27;ve called the phone number on the back of the card and it is activated and contains the appropriate balance. The card, however, did not read and was neither &amp;#34;accepted or declined&amp;#34;, as the manager was telling me this.&lt;br /&gt;&lt;br /&gt;I&#x27;ve gone to the company that operates the card and it referenced that any redemption issues should notify the retailer that issued the card. So now I wait to find out how I can use my card with a balance but cannot be read and processed.">I&#x27;m glad I did not give this card away as a gift because I would be embarrassed to find out that it did not work for the recipient when it w…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">95903</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">great to use</td>
+      <td class="t" title="liked points">liked points</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">96779</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Cards were empty. Waste of money.</td>
+      <td class="t" title="Unable to redeem these cards, they each had $0 dollars on them. Money down the drain.">Unable to redeem these cards, they each had $0 dollars on them. Money down the drain.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">97409</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Easy to load, was what I needed to complete a transaction</td>
+      <td class="t" title="I was reminded that I can reload this card to help complete a purchase that I was short of only 50 cents. It loads money in an instant, and I was able to complete the transaction to receive item the very next day. I would like to thank the rep who reminded me I can do this, because I was frustrated and would have simply cancelled my order.">I was reminded that I can reload this card to help complete a purchase that I was short of only 50 cents. It loads money in an instant, and …</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">98185</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">not unusually</td>
+      <td class="t" title="unlike nothing, it was not special , I brought these for my spouse, he said the food was better in NJ">unlike nothing, it was not special , I brought these for my spouse, he said the food was better in NJ</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">99210</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">One Star</td>
+      <td class="t" title="Not very happy went to use this and it was not loaded with the $25 :(">Not very happy went to use this and it was not loaded with the $25 :(</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">100927</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Having problems doing that</td>
+      <td class="t" title="Trying to cancel it">Trying to cancel it</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">101906</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great gift idea</td>
+      <td class="t" title="Came quickly, and they loved they could what they want">Came quickly, and they loved they could what they want</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">102406</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Did not work</td>
+      <td class="t" title="I gave this to my friend As a gift it says there is money on the card but it will not work&lt;br /&gt;It shut down a system at a store when they tried to use it. When you call it says money is on there but they can’t use it">I gave this to my friend As a gift it says there is money on the card but it will not work&lt;br /&gt;It shut down a system at a store when they t…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">102765</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Good</td>
+      <td class="t" title="Ok">Ok</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">102814</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Leave yourself time to match gifts to recipients!</td>
+      <td class="t" title="Gift card tin arrived with Santa bag on time. However, the recipient information was tossed in the package without any reference to the actual gifts. Luckily I knew which tag went with which gift, and the gift values weee the same. However, this was a problem for gifts sent directly to recipients. The only gifts which were properly marked were the gift-wrapped items, but even those arrived with extra recipient tags adding to confusion. We should not have to build-a-gift at these prices. Amazon, you can do much better than this!">Gift card tin arrived with Santa bag on time. However, the recipient information was tossed in the package without any reference to the actu…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">103801</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">No specific comments</td>
+      <td class="t" title="No specific comments">No specific comments</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">104241</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="Great">Great</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">105657</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Scam</td>
+      <td class="t" title="Do not buy.  If you search gift car this comes up.  Thought I was buying 500 gift card to give away, instead it put it on my account.  I dealt with amazon chat and was told they are unable to return it or take it back and that I would have to purchase another gift card.  So I went and got my actual gift card went to checkout.... cannot use gift card balance to buy a gift card.  Ridiculous amazon cannot undo this purchase">Do not buy.  If you search gift car this comes up.  Thought I was buying 500 gift card to give away, instead it put it on my account.  I dea…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">107946</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">This sux</td>
+      <td class="t" title="Bad">Bad</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">109835</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">It wasn&#x27;t like the one on this page</td>
+      <td class="t" title="I wasn&#x27;t impressed with the tin. It wasn&#x27;t like the one on this page. Get candy crush jelly saga.">I wasn&#x27;t impressed with the tin. It wasn&#x27;t like the one on this page. Get candy crush jelly saga.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="2">
+      <td class="c">110675</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">Refused at some restaurants</td>
+      <td class="t" title="I gave four of these as gifts for Christmas.  Some restaurants will not take them.  Doesn’t make for a very good gift if you’re limited on where you can use them.">I gave four of these as gifts for Christmas.  Some restaurants will not take them.  Doesn’t make for a very good gift if you’re limited on w…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">110851</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Card was not activated</td>
+      <td class="t" title="The card was not activated and by the time the person I sent it tried to use it, the card was declined and Amazon has no option to return it. I called the number on the back of the Visa card and was directed back to Amazon. $105 wasted.">The card was not activated and by the time the person I sent it tried to use it, the card was declined and Amazon has no option to return it…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">110854</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Wht such a high purchase fee?</td>
+      <td class="t" title="I think the service fee of $5.95 is too high.">I think the service fee of $5.95 is too high.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">112404</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Complete disregard to product quality.</td>
+      <td class="t" title="What a cutesy design on the product&#x27;s page, right? I ordered this birthday one, and a graduation one. The graduation one was perfect; 5 stars, presentation, container, etc. This birthday one however, wasn&#x27;t.&lt;br /&gt;&lt;br /&gt;They shipped it, WITHOUT THE OTHER CUPCAKE HALF.&lt;br /&gt;&lt;br /&gt;Someone shoved this half baked birthday card inside a brown envelope alongside a perfectly done one, and said &quot;Yep, this is fine!&quot;">What a cutesy design on the product&#x27;s page, right? I ordered this birthday one, and a graduation one. The graduation one was perfect; 5 star…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">112545</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Disappointed in the bent tin.</td>
+      <td class="t" title="I received this and it was so bent up that the cupcake tin wouldn’t close.  I was disappointed because it was for a child’s birthday gift.  I’ve purchased many gift cards and this is the only time I was unhappy with my purchase.">I received this and it was so bent up that the cupcake tin wouldn’t close.  I was disappointed because it was for a child’s birthday gift.  …</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">112943</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Nice Packaging of the Gift Card</td>
+      <td class="t" title="Loved the box it came in!">Loved the box it came in!</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="2">
+      <td class="c">113096</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">how</td>
+      <td class="t" title="dont know  when to reload..never comes up how to use and reload..am i getting my moneys worth as i don&#x27;t know..no feed back on this">dont know  when to reload..never comes up how to use and reload..am i getting my moneys worth as i don&#x27;t know..no feed back on this</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">113184</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Convenient service but still some confusion?</td>
+      <td class="t" title="The reload itself went fine but I had some problems re activating the reloaded card as my payment option. I&#x27;m still not sure how I got it to work...">The reload itself went fine but I had some problems re activating the reloaded card as my payment option. I&#x27;m still not sure how I got it to…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">115160</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great Service!!</td>
+      <td class="t" title="Received my card today in excellent condition and I know that I will have a very happy teenager come Christmas">Received my card today in excellent condition and I know that I will have a very happy teenager come Christmas</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">115506</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="Great investment. I need more">Great investment. I need more</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">117598</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Look and Wait</td>
+      <td class="t" title="difficult to find and no verification that I was successful in using online reload but overall OK">difficult to find and no verification that I was successful in using online reload but overall OK</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">118955</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">ok but I was offered a $10. gift promo ...</td>
+      <td class="t" title="ok  but I was offered a $10. gift promo for ordering it but did not receive it... and I ordered another $50.card with same promo and got card and no promotion., so I gave it a 3">ok  but I was offered a $10. gift promo for ordering it but did not receive it... and I ordered another $50.card with same promo and got car…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">119798</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">One Star</td>
+      <td class="t" title="i couldnt pre-order mp3 album with it">i couldnt pre-order mp3 album with it</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">120381</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Loved it</td>
+      <td class="t" title="Loved the special graduation icons">Loved the special graduation icons</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">121634</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">$100 Amazon gift card</td>
+      <td class="t" title="Excellent!  Design was nice">Excellent!  Design was nice</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">122436</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">What headline?</td>
+      <td class="t" title="I thought I could use it for subscription or something. Couldn&#x27;t. Currently I don&#x27;t know what to do with it or how to use it...">I thought I could use it for subscription or something. Couldn&#x27;t. Currently I don&#x27;t know what to do with it or how to use it...</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">123544</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Loved how easy it is to use</td>
+      <td class="t" title="It was super easy to top up and super giftable">It was super easy to top up and super giftable</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">123616</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Nice product but…</td>
+      <td class="t" title="Purchased these to add to teacher appreciation gifts. The gift card holders/envelopes are really nice and make for very nice presentation. However I ordered three and one came destroyed. There are no holes in the plastic but it is stretched like someone purposely ripped the envelope open. The claim sticker is not removed so I don’t believe the gift card has been compromised. But if someone ordered these they are likely for a gift so why would you send one that is destroyed.">Purchased these to add to teacher appreciation gifts. The gift card holders/envelopes are really nice and make for very nice presentation. H…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">124705</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Amazon, really,  you can do better than this!!</td>
+      <td class="t" title="It is a rip off!  I should have read the reviews.  Amazon, really, you can do better than this.... my trust level for your company just went down.  This is the second time this month I have bought a non returnable item from Amazon.">It is a rip off!  I should have read the reviews.  Amazon, really, you can do better than this.... my trust level for your company just went…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">126733</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Great idea for a grad...</td>
+      <td class="t" title="Ordered 2...one was fine the other damaged.  I am sure the recent grad wont care...just frustrating.">Ordered 2...one was fine the other damaged.  I am sure the recent grad wont care...just frustrating.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">128395</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Connections Account not safe for gift cards</td>
+      <td class="t" title="We purchase gift cards every year from Cinemark and reload them throughout the year. We listened to the advertising and advice from Cinemark and added our giftcard to our connection account a little over a year ago. BIG MISTAKE! Cinemark does not have good protection from cyber hackers for their connection site. Thus our giftcard was hacked from the connections site and we lost $225.00 of our giftcard balance when that balance was stolen from their site and used over 800 miles a way to, I guess, have an expensive movie night out! I wish we had ignored Cinemark and their advertising as if we had just used the giftcard we purchased and taken it out of our wallet to pay and not linked the GC number to our account we would still have $225.01 that was haced.&lt;br /&gt;&lt;br /&gt;Cinemark also does not honor their guests. We have been treated rudely. Told musinformation, like that their loss prevention team would call yet that has never happened. Also asked to be able to speak to corporate about our situation only to have our requests fall on deaf ears. We filed a police report, but could not give completed information as we have been unable to speak with loss prevention about exactly what happened. How was our account hacked? Were other accounts hacked? So today we also filed a complaint against Cinemark USA Inc. For lack of customer service, failure to secure their site while protecting people&#x27;s money and still advertising to people to add your GC to that unsafe site! Protect yourself. Buy your giftcard, keep it safe in your wallet and enjoy it from there. That way you keep what is yours! Don&#x27;t let Cibemark lose what is yours! Trust me they won&#x27;t do anything about it and they won&#x27;t give the lost money back!">We purchase gift cards every year from Cinemark and reload them throughout the year. We listened to the advertising and advice from Cinemark…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">128934</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Three Stars</td>
+      <td class="t" title="This tin came all dented.">This tin came all dented.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">129479</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">I really like these gift cards</td>
+      <td class="t" title="I really like these gift cards. They are a lot nicer than the gift cards you can buy in the stores.">I really like these gift cards. They are a lot nicer than the gift cards you can buy in the stores.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">130395</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">A nightmare</td>
+      <td class="t" title="There is no simple way to get these v bucks onto a secondary account on ps4. Epic games and PlayStation are both no help in fixing the issue either">There is no simple way to get these v bucks onto a secondary account on ps4. Epic games and PlayStation are both no help in fixing the issue…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">131243</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Beautiful box for presentation.</td>
+      <td class="t" title="Kind of hard to open, would prefer it to open on the top.?">Kind of hard to open, would prefer it to open on the top.?</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">131420</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="excellent">excellent</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">132469</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">HORRIBLE GIFT CARD</td>
+      <td class="t" title="CUSTOMER SERVICE IS TERRIBLE">CUSTOMER SERVICE IS TERRIBLE</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">132494</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Would have been nice if the &quot;this is a gift&quot; line was noticed ...</td>
+      <td class="t" title="This was a gift item and the person receiving said there was no information from where it came.  She had to send an embarrassing text to find out &amp;#34;who sent the Amazon gift card&amp;#34;.  Would have been nice if the &amp;#34;this is a gift&amp;#34; line was noticed with to and from.">This was a gift item and the person receiving said there was no information from where it came.  She had to send an embarrassing text to fin…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">132501</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">One card was empty</td>
+      <td class="t" title="I have them as gifts but one card has nothing on it">I have them as gifts but one card has nothing on it</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">132751</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">DON&#x27;T BUY, UNUSABLE</td>
+      <td class="t" title="Worthless, can&#x27;t be used towards any type of special spotify account (Student, family etc.).&lt;br /&gt;&lt;br /&gt;Also couldn&#x27;t be returned after I discovered this trap.&lt;br /&gt;&lt;br /&gt;Spotify are a bunch of blood sucking leeches who deserve more 1 star ratings for this. I&#x27;m literally canceling my own spotify premium and switching to Pandora just because of this putrid experience.">Worthless, can&#x27;t be used towards any type of special spotify account (Student, family etc.).&lt;br /&gt;&lt;br /&gt;Also couldn&#x27;t be returned after I di…</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="neutral"
+        data-pred="neutral" data-rating="3">
+      <td class="c">133998</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Limited use</td>
+      <td class="t" title="This gift card cannot be used at Starbucks in a Barnes and nobles store.">This gift card cannot be used at Starbucks in a Barnes and nobles store.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">135748</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Why don’t you include the amount?!</td>
+      <td class="t" title="I read reviews that the total wouldn’t be on the cards. I was fine with it. Until I learned I’d have to scratch every gift card code on the back to figure out the totals. Now they look used and have to give them to my kids teachers. Ridiculous. I’d imagine these are pretty loaded In the warehouse waiting to go out? Put the amount on the plastic bag they come in. It’s really not that complicated.">I read reviews that the total wouldn’t be on the cards. I was fine with it. Until I learned I’d have to scratch every gift card code on the …</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">136513</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Very nice.</td>
+      <td class="t" title="Arrived next day. Cool little tin. People really liked the packaging. Nice addition to the standard gift card. Definitely will buy again.">Arrived next day. Cool little tin. People really liked the packaging. Nice addition to the standard gift card. Definitely will buy again.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="2">
+      <td class="c">137065</td>
+      <td class="c"><span class="stars" title="rating 2.0">★★&nbsp;2.0</span></td>
+      <td class="t">Prepare to wait...</td>
+      <td class="t" title="They claim it will take 5 minutes... more like over an hour every time.. this is inconvenient  and almost funny because when the money goes directly through it should automatically  reflect on the balance... sorry amazon buy this process is broken..">They claim it will take 5 minutes... more like over an hour every time.. this is inconvenient  and almost funny because when the money goes …</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">137864</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Santa Gift Card Box</td>
+      <td class="t" title="Great gift card presentation device.  However, the paint on edges of the lids was marred/chipped.  Ordered replacements still not perfect.">Great gift card presentation device.  However, the paint on edges of the lids was marred/chipped.  Ordered replacements still not perfect.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">137927</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">RIP OFF</td>
+      <td class="t" title="What a rip off had on watch list and hit add to cart right away and put on waiting list">What a rip off had on watch list and hit add to cart right away and put on waiting list</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">140507</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Envelopes were too small for the cards!</td>
+      <td class="t" title="The envelopes were too small for the cards">The envelopes were too small for the cards</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">141116</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Was not activated</td>
+      <td class="t" title="Was not activated.">Was not activated.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">141300</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Fun for birthdays</td>
+      <td class="t" title="Great birthday gift.">Great birthday gift.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">141586</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Great</td>
+      <td class="t" title="Great.">Great.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">144315</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">How much is on the card?</td>
+      <td class="t" title="I ordered several gift cards at different amounts.  They all came in the same package and there&#x27;s no way to tell which one is which.">I ordered several gift cards at different amounts.  They all came in the same package and there&#x27;s no way to tell which one is which.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">144603</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Call the number on the back to register card DO NOT USE SITE</td>
+      <td class="t" title="2/3 worked fine trying to get Amazon to fix the last card because a google charge ended up there that wasn’t me. People are using fake sites to steal money so just call the number on the back of the card to avoid your money going missing and try to transfer it to a personal card if you can">2/3 worked fine trying to get Amazon to fix the last card because a google charge ended up there that wasn’t me. People are using fake sites…</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">144676</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Five Stars</td>
+      <td class="t" title="real benefits, thanks">real benefits, thanks</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">146498</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Confusing!!</td>
+      <td class="t" title="Very confusing!">Very confusing!</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">147566</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Gift card</td>
+      <td class="t" title="Awesome">Awesome</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">147837</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">I recieved only 16.</td>
+      <td class="t" title="Orginal order was for 18 cards, I recievd only 16.">Orginal order was for 18 cards, I recievd only 16.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="negative" data-rating="3">
+      <td class="c">148143</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Could not use</td>
+      <td class="t" title="I don’t think it has anything on it">I don’t think it has anything on it</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="row-err" data-match="0" data-actual="neutral"
+        data-pred="positive" data-rating="3">
+      <td class="c">148302</td>
+      <td class="c"><span class="stars" title="rating 3.0">★★★&nbsp;3.0</span></td>
+      <td class="t">Oh boy!</td>
+      <td class="t" title="Good stuff.">Good stuff.</td>
+      <td class="c"><span class="chip neutral">NEUTRAL</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot bad">✗</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="4">
+      <td class="c">148765</td>
+      <td class="c"><span class="stars" title="rating 4.0">★★★★&nbsp;4.0</span></td>
+      <td class="t">Four Stars</td>
+      <td class="t" title="Granddaughter was very happy with it.">Granddaughter was very happy with it.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">148854</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">Horrible, horrible, horrible!! Do NOT order from this SHAM company!</td>
+      <td class="t" title="I don&#x27;t know what kind of sweatshop these guys are running, but I&#x27;ve had problems with them since day ONE--I tried to give them ZERO STARS, but I HAD to give them at least one (which is being generous, in my opinion). I ordered my cards well in advance, and they still did not arrive on time. When I called the company to figure out what the issue was, they sent my phone call to somewhere in India--I was put on hold numerous times while they scrambled around trying to figure out what was going on with an order they had sent. When they finally had some information, they GUARANTEED a delivery date--the date passed with NO cards in the mail whatsoever. Apparently, this &#x27;company&#x27; (and I use that term very loosely) takes 2+ weeks to process and send out FAULTY orders.&lt;br /&gt;&lt;br /&gt;When the individual DID receive the card it looked as though it had been used, and did not even WORK. When I explained to &#x27;GiftCard Mall&#x27; what had happened, and told them that my mother said it looked like the card was in rough condition (the individual at the store the card was purchased for, in fact, confirmed the card HAD been reloaded--she had guessed it was multiple times from the shape the card was in), they implied that she was lying about it! The manager I spoke with on the phone was constantly interrupting me and trying to speak over me while I was trying to explain myself--trying to convince me that the United States Postal Service doesn&#x27;t have tracking numbers. I told the manager that I was guaranteed a delivery date when I called previously, at the very least I expect a company to stick by the guarantees THEY offer, but apparently this company does NOT stick by their promises. The records they had of my previous conversation was entirely lacking, and instead of trying to resolve the issue the &#x27;manager&#x27; (I say this because he was both condescending and unprofessional) then sent me off to get lost in the paperwork of some &#x27;corporate office.&#x27;&lt;br /&gt;&lt;br /&gt;I love Amazon, and I love the convenience of online shopping--I would have been a FREQUENT customer of GiftCard Mall, but this business isn&#x27;t a business at all. These guys take your order and your HARD-EARNED MONEY, and then throw an old, previously used giftcard in the mail hoping it&#x27;s the right store, with the right amount, going to the right location--if not, oh well! It will be your fault...but only because you still chose to order from them after reading this.&lt;br /&gt;&lt;br /&gt;From now on, I will be buying my giftcards the old-fashioned way--if it ain&#x27;t broke...">I don&#x27;t know what kind of sweatshop these guys are running, but I&#x27;ve had problems with them since day ONE--I tried to give them ZERO STARS, …</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="positive"
+        data-pred="positive" data-rating="5">
+      <td class="c">150017</td>
+      <td class="c"><span class="stars" title="rating 5.0">★★★★★&nbsp;5.0</span></td>
+      <td class="t">Very cute!</td>
+      <td class="t" title="Very cute and arrived on time.">Very cute and arrived on time.</td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="chip positive">POSITIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">151039</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">One Star</td>
+      <td class="t" title="This card was not activated for use. Could not return it.">This card was not activated for use. Could not return it.</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr>
+    <tr class="" data-match="1" data-actual="negative"
+        data-pred="negative" data-rating="1">
+      <td class="c">151653</td>
+      <td class="c"><span class="stars" title="rating 1.0">★&nbsp;1.0</span></td>
+      <td class="t">That I can use it</td>
+      <td class="t" title="The one did not work.  Won’t buy again">The one did not work.  Won’t buy again</td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="chip negative">NEGATIVE</span></td>
+      <td class="c"><span class="dot ok">✓</span></td>
+    </tr></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>Generated from results/step6_metrics.json + results/step6_llm.jsonl · model cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit · sample seed 6418 · data: Amazon Reviews '23 (McAuley Lab), Gift Cards.</footer>
+
+<script>
+(function(){
+  var rows = Array.prototype.slice.call(document.querySelectorAll('table.reviews tbody tr'));
+  var countEl = document.getElementById('liveCount');
+  var total = rows.length;
+  var state = {result:'all', actual:'all', pred:'all', rating:'all'};
+  var groups = document.querySelectorAll('.fbtns');
+  function apply(){
+    var visible=0,i,tr,m,ok;
+    for (i=0;i<rows.length;i++){
+      tr=rows[i];
+      m = tr.getAttribute('data-match')==='1' ? 'correct' : 'mismatched';
+      ok = (state.result==='all'||m===state.result)
+        && (state.actual==='all'||tr.getAttribute('data-actual')===state.actual)
+        && (state.pred==='all'||tr.getAttribute('data-pred')===state.pred)
+        && (state.rating==='all'||tr.getAttribute('data-rating')===state.rating);
+      if (ok){tr.classList.remove('hidden-row'); visible++;}
+      else{tr.classList.add('hidden-row');}
+    }
+    countEl.innerHTML='Showing <b>'+visible+'</b> of '+total+' reviews';
+  }
+  var g,b,grp,btns,btn;
+  for (g=0;g<groups.length;g++){
+    grp=groups[g]; btns=grp.querySelectorAll('.fbtn');
+    (function(grp){
+      for (b=0;b<btns.length;b++){
+        (function(btn){btn.addEventListener('click',function(){
+          var sibs=grp.querySelectorAll('.fbtn'),x; for(x=0;x<sibs.length;x++)sibs[x].classList.remove('active');
+          btn.classList.add('active'); state[grp.getAttribute('data-group')]=btn.getAttribute('data-v'); apply();
+        });})(btns[b]);
+      }
+    })(grp);
+  }
+  apply();
+})();
+</script>
+</div></body></html>

@@ -1,0 +1,47 @@
+# --- Secrets / credentials (never commit) ---
+.env
+.env.*
+*.env
+!*.env.example
+credentials.json
+*.key
+*.pem
+
+# --- Raw data (large, re-downloadable — keep out of the repo) ---
+data/
+*.jsonl.gz
+*.jsonl
+
+# --- Python caches / build artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# --- NRC Emotion Lexicon data (downloaded, re-downloadable) ---
+# The NRC EmoLex EULA (§3.1) prohibits disclosing the Licensed Product (the
+# lexicon file) to third parties without NRC's written consent, so it must NOT
+# be committed to this (potentially public) repository. src/fetch_nrc_lexicon.py
+# downloads it. LICENSE-NOTICE.md (our own attribution/citation note) is kept.
+lexicon/*.txt
+lexicon/*.pdf

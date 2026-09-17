@@ -1,0 +1,17 @@
+{
+  "experiment": "Step 6 balanced three-class LLM (150 reviews)",
+  "created_utc": "2026-09-17T00:01:56+00:00",
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "api_base_url": "http://dobolyi.com:9001/v1",
+  "temperature": 0.0,
+  "num_reviews": 150,
+  "sample_file": "results/step6_manifest.json",
+  "sample_seed": 6418,
+  "prompt_file": "prompts/sentiment_emotion_3class.txt",
+  "prompt_sha256": "f2693616b15f10b03fe95ca25f6fdc3bafb97c4a9eff0b85de4a68a6b8128ea9",
+  "input_fields_sent_to_model": [
+    "title",
+    "text"
+  ],
+  "rating_or_ground_truth_sent_to_model": false
+}

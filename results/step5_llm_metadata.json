@@ -1,0 +1,26 @@
+{
+  "experiment": "Step 5A combined sentiment+emotion LLM (first 100 records)",
+  "created_utc": "2026-09-16T23:32:33+00:00",
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "api_base_url": "http://dobolyi.com:9001/v1",
+  "temperature": 0.0,
+  "num_reviews": 100,
+  "selection": "first 100 records in original file order",
+  "prompt_file": "prompts/sentiment_emotion_prompt.txt",
+  "prompt_sha256": "2961bd4591d08fb17b348d3d8d6bc04f4136382ac8baa15f27ce5d4b82425c4f",
+  "emotions": [
+    "anger",
+    "anticipation",
+    "disgust",
+    "fear",
+    "joy",
+    "sadness",
+    "surprise",
+    "trust"
+  ],
+  "input_fields_sent_to_model": [
+    "title",
+    "text"
+  ],
+  "rating_or_prior_labels_sent_to_model": false
+}

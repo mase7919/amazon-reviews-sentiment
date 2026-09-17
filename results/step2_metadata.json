@@ -1,0 +1,13 @@
+{
+  "experiment": "Step 2 binary sentiment scoring (first 100 records)",
+  "created_utc": "2026-09-16T22:58:14+00:00",
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "api_base_url": "http://dobolyi.com:9001/v1",
+  "temperature": 0.0,
+  "num_reviews": 100,
+  "selection": "first 100 records in original file order (no balancing/randomization)",
+  "ground_truth_rule": "rating>=4 -> POSITIVE; rating<4 -> NEGATIVE (derived after prediction)",
+  "prompt_file": "prompts/sentiment_prompt.txt",
+  "prompt_sha256": "dbb2e6e41001578a80bcc56d1f9c5ff627d2016a75d0b6dc434f10a2f85b4135",
+  "rating_not_sent_to_model": true
+}

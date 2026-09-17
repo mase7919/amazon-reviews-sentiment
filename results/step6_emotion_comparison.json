@@ -1,0 +1,1155 @@
+{
+  "experiment": "Step 6 LLM vs NRC emotion comparison (balanced 150)",
+  "total_reviews": 150,
+  "llm_emotion_equals_nrc": 23,
+  "llm_emotion_equals_nrc_pct": 15.33,
+  "differ": 127,
+  "differ_pct": 84.67,
+  "agreement_counts_by_emotion": {
+    "anger": 8,
+    "anticipation": 0,
+    "disgust": 0,
+    "fear": 0,
+    "joy": 9,
+    "sadness": 0,
+    "surprise": 0,
+    "trust": 6
+  },
+  "llm_emotion_distribution": {
+    "anger": 66,
+    "anticipation": 0,
+    "disgust": 0,
+    "fear": 1,
+    "joy": 53,
+    "sadness": 10,
+    "surprise": 3,
+    "trust": 17
+  },
+  "nrc_emotion_distribution": {
+    "anger": 12,
+    "anticipation": 77,
+    "disgust": 1,
+    "fear": 3,
+    "joy": 12,
+    "sadness": 3,
+    "surprise": 1,
+    "trust": 41
+  },
+  "matrix_llm_by_nrc": {
+    "anger": {
+      "anger": 8,
+      "anticipation": 29,
+      "disgust": 1,
+      "fear": 2,
+      "joy": 2,
+      "sadness": 2,
+      "surprise": 1,
+      "trust": 21
+    },
+    "anticipation": {
+      "anger": 0,
+      "anticipation": 0,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 0,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 0
+    },
+    "disgust": {
+      "anger": 0,
+      "anticipation": 0,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 0,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 0
+    },
+    "fear": {
+      "anger": 1,
+      "anticipation": 0,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 0,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 0
+    },
+    "joy": {
+      "anger": 1,
+      "anticipation": 29,
+      "disgust": 0,
+      "fear": 1,
+      "joy": 9,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 13
+    },
+    "sadness": {
+      "anger": 1,
+      "anticipation": 7,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 1,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 1
+    },
+    "surprise": {
+      "anger": 1,
+      "anticipation": 2,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 0,
+      "sadness": 0,
+      "surprise": 0,
+      "trust": 0
+    },
+    "trust": {
+      "anger": 0,
+      "anticipation": 10,
+      "disgust": 0,
+      "fear": 0,
+      "joy": 0,
+      "sadness": 1,
+      "surprise": 0,
+      "trust": 6
+    }
+  },
+  "matrix_total": 150,
+  "nrc_tie_cases": 78,
+  "nrc_zero_match_reviews": 28,
+  "nrc_fallback_used": 28,
+  "llm_failed": 0,
+  "diagnostic": {
+    "note": "subset where NRC has a unique, nonzero maximum emotion score",
+    "n": 44,
+    "agreement_on_subset": 7,
+    "agreement_on_subset_pct": 15.91
+  },
+  "validation": {
+    "matrix_total": 150,
+    "llm_distribution_total": 150,
+    "nrc_distribution_total": 150,
+    "all_totals_equal_150": true
+  },
+  "disagreements": [
+    {
+      "row": 3319,
+      "title": "I gave these as christmas gifts to my nieces and ...",
+      "text": "I gave these as christmas gifts to my nieces and nephews. They appreciated the gift and credit card of their own feel. Unfortunately Auntie was expected to take them to the movies and provide a meal with this gift.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 4219,
+      "title": "Do not buy",
+      "text": "This is a scam - can't be used for Spotify, it's a joke",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 9320,
+      "title": "Need be more Attractive!!!",
+      "text": "Can be a little more attractive for kids.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 11101,
+      "title": "Gift card",
+      "text": "Easy to use and reload",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 11345,
+      "title": "Amazing",
+      "text": "He loved it!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 11607,
+      "title": "As expected",
+      "text": "As expected",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 12466,
+      "title": "Good value",
+      "text": "Good value",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 15284,
+      "title": "These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.",
+      "text": "These are handy for tough to buy for folks.  Not very personal, but it does allow them to make their own purchases.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "sadness",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 18871,
+      "title": "Don’t expect this card to function like a typical Visa",
+      "text": "Don’t buy this card. This card doesn’t work with Apple Wallet (cannot get added). It doesn’t work at gas station either. I ended up adding it back to my Amazon account.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 22975,
+      "title": "Great for spending. Not great for sinking in jello",
+      "text": "I put this gift card in jello for my sisters-in-laws birthday... the tin floats. Man did i not see that coming. If you buy this to put it in jello, maybe get some rocks for the inside. Otherwise it will float. Clearly a stapler is easier to use. The card spends great tho! Highly recommend if you don’t need to put in jello... also still recommend if you do need to put it in jello.",
+      "llm_emotion": "surprise",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 23069,
+      "title": "Love the iTunes but no good 😢",
+      "text": "The numbers & letters is wrong I want a new<br />$200.00 card. Because the one I have look like someone had used it. I scratch it off but someone<br />knew the numbers, letters I was the one scratch it off",
+      "llm_emotion": "anger",
+      "nrc_emotion": "joy",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 26928,
+      "title": "False advertising",
+      "text": "Ripp off. The offer was  $50.00 for $40.00 and the charged the $50.00. Dont fall for it. The cards did arrive timely but not at the price avertized.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 27652,
+      "title": "Always a hit",
+      "text": "Great gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anger",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 29776,
+      "title": "damaged",
+      "text": "Bought this as a gift for my grandson's birthday.  The gift card looks OK, but the Happy Birthday gift card holder was ripped and looks awful.  I'll have to tape it together, which will make for a lousy presentation.  Disappointing.",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 31152,
+      "title": "Five Stars",
+      "text": "Great gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 31200,
+      "title": "For those sewers in your life.",
+      "text": "Great gift card for those crafty people on your list.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 33987,
+      "title": "Auto-Renewal caused a big problem",
+      "text": "Even though the price was great, I can't recommend purchasing Office 365 through Amazon.  Cancelling the auto-renewal was easy but in the eyes of MS, my office account was locked to Amazon.  Took lengthy phone calls with MS support over several weeks to resolve.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 34148,
+      "title": "Not a Bear.  Tradition Ruined",
+      "text": "I've been getting the Amazon Gund bear every year.  This year the bear was replaced by socks.  Very sad end to a great tradition from the Amazon promotion team..",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anger",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 35757,
+      "title": "Almost threw it in the trash! Needs better labeling on outside envelope.",
+      "text": "I love Amazon and shop continuously on it.  I bought a gift card for my mom for Xmas and the tracking info actually said I would get it one day earlier than the other products I ordered at the same time.  So when a non descript sealed envelope came in a box with something else I tossed it on the counter thinking it was junk mail like so many other companies send with their products.  I actually forgot about the GC as I expected it to come snail mail solo.  So this envelope sat for a few days and as I was tossing it into the recycle bin I decided to tear it open.  What to my surprise was inside but another envelope, the holiday card and gift card.  Wow was I surprised.  Since the outside envelope is just packaging it should be better labeled as to the contents.",
+      "llm_emotion": "surprise",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 37839,
+      "title": "Five Stars",
+      "text": "just what i asked for",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 38692,
+      "title": "Great gift to me",
+      "text": "The design is cool. Overall GOOD.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 39071,
+      "title": "Cute",
+      "text": "Really cute for a birthday present.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 40023,
+      "title": "One Star",
+      "text": "works fine",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 41362,
+      "title": "Ease of  use.",
+      "text": "It is so easy load. No problems at all.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 43306,
+      "title": "Five Stars",
+      "text": "Perfect gift for anyone.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 47095,
+      "title": "Don’t travel with Amazon credits.",
+      "text": "I tried to add some funds to purchase a movie and it let me add the funds but not use them to purchase the movies because I was out of the country when attempting this.  So I’ll go back to using Netflix which works wherever I go.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 48445,
+      "title": "an easy way to add money to my account",
+      "text": "a thumbs up",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 49111,
+      "title": "Easy gift giving",
+      "text": "Nice",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 52024,
+      "title": "Filling a leaky bucket",
+      "text": "The process is easy, which is good because Kindle raids that balance first.  When you go back later to use the balance, it's reduced or gone.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 52979,
+      "title": "Awesome",
+      "text": "Great deal",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 57342,
+      "title": "Never received $5. bonus promised when purchased.",
+      "text": "Hi,  First, I never received the $5. bonus that I was supposed to get in November.  Second, I purchased these as Christmas gifts and because of all the reviews from people who had problems cashing the cards in, I was afraid to give them to anyone else.  I ended up applying all 3 cards to my own Amazon account.  Thank goodness they all worked but I couldn't use them as gifts.  Third, the area on the back that you are supposed to &#34;scratch&#34; off was very difficult to remove and on one card, one of the letters beneath it was almost removed as well.  I had to try a couple of times before I got the right letter & the card finally was approved.  I would not take a chance on an &#34;offer&#34; like this from Amazon again.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 59472,
+      "title": "Great gift box",
+      "text": "Loved the free gift box",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 63708,
+      "title": "Details unclear",
+      "text": "An attractive offer but i did not understand that the bonus would only apply to an order shipped directly from Amazon",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 63860,
+      "title": "ill try most things, once",
+      "text": "glad to get a ten dollar reward to try it out.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 64683,
+      "title": "misleading",
+      "text": "Figured out that this whole mess was because there were more than a card in some of the boxes (one worked, the other not).",
+      "llm_emotion": "anger",
+      "nrc_emotion": "disgust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 66165,
+      "title": "It's not the product, it's how the package was handled/delivered",
+      "text": "The gift cards are great. The only reason for the 3star review is how I got my package.... All of the tin Santa cases for the gift cards are all dented... The package I received had over 9 delivery stickers on it and was delayed for more than 6 days. There was no weather problems during those days....",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 66453,
+      "title": "There was zero balance on card! It was supose to be $25.000 gift card!",
+      "text": "There was zero balance on gift card! It should have been $25.00. She went to use it and there was supose to be a  card with it and no card to say who was from! This needs to be corrected. .",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 66678,
+      "title": "Fast and easy.",
+      "text": "A last minute gift for Christmas.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 67364,
+      "title": "Pretty but too thin",
+      "text": "It is too thin as I thought",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 67518,
+      "title": "Four Stars",
+      "text": "I liked the design.  It was easy to obtain and didn't need additional gift wrapping.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 69248,
+      "title": "Convenient",
+      "text": "The presentation tin was very nice.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 71139,
+      "title": "Pretty",
+      "text": "Basic gift card",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 72345,
+      "title": "Thank",
+      "text": "Thank",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 73795,
+      "title": "Perfect Gift",
+      "text": "Perfect gift for someone who has most everything.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 75279,
+      "title": "Just a gift card",
+      "text": "Just a gift card",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 78562,
+      "title": "It was supposed to be for mother's day and I received one that looked more like it was intended for a birthday",
+      "text": "I received the wrong card. It was supposed to be for mother's day and I received one that looked more like it was intended for a birthday, with balloons and such on it.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 79123,
+      "title": "Arrived in 2 days 👍",
+      "text": "Quick delivery and great gift for friend traveling",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 80207,
+      "title": "Service",
+      "text": "My card was all damaged and the outside envelope came later then said",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 80294,
+      "title": "good stuff",
+      "text": "loved the packaging. Makes giving a gift card much better.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 81266,
+      "title": "its gift card",
+      "text": "its a gift card, not even sure why Amazon wants me to review it. It was a pain as I had credit card gift card I wanted to use and pay the remainder on my debit card, Amazon said \"no\". So I had to buy this gift card with the other gift card so I could buy my gift and pay the difference on my own card, what a pain.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 83032,
+      "title": "Gift cards are neat",
+      "text": "They're gift cards. Woohoo you payed to put money on a card. I know I did it. It was for good reason though.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 84579,
+      "title": "Hassle free Christmas",
+      "text": "I’m happy with my purchase. It made giving Christmas gifts so much easier to just buy this gift card online and get it delivered to my family member. This made my life so much easier and I’m glad I didn’t have to go out into traffic to get it.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 84881,
+      "title": "Three Stars",
+      "text": "Cute little Xmas case",
+      "llm_emotion": "joy",
+      "nrc_emotion": "fear",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 85973,
+      "title": "Beware of packaging",
+      "text": "I purchased a $50 gift card and had it sent to a relative. All of the online documentation indicated the recipient would not know what was in the package.  There was a box during the order process for a To: and From: and I also added \"Do Not Open Until Christmas\". The package arrived on the specified day but the label on the outside of the box did not have any indication of my note.  The recipient opened the box to find a sealed Amazon envelope and a packing slip.  The sealed envelope contained the gift card.  I figured the note should be here; nope.  I finally found the note on the packing slip.  OK, that's fine, but the packing slip also had the description of what was inside the sealed envelope including the denomination of the gift card; so much for a surprise.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "surprise",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 86392,
+      "title": "There's truly little reason to buy a Fandango gift card ...",
+      "text": "There's truly little reason to buy a Fandango gift card.  About 20% of it goes to &#34;Convenience Fees&#34;.  Just buy a gift card to the theater directly.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 87290,
+      "title": "Gift card arrived water damaged",
+      "text": "Gift card arrived water damaged even though it was within plastic wrapping. Could not give it as a gift.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 88205,
+      "title": "Gift Cards how can you rate gift cards",
+      "text": "Gift Cards are gift cards...can't go wrong there.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 88278,
+      "title": "Mystery Gift",
+      "text": "My daughter was gifted a card and has no way to determine value without redeeming!",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 88805,
+      "title": "Overcharged",
+      "text": "I purchased a Brother Compact Monochrome Laser Printer, HL-L2370DWXL, which included a promotional offer, \"Buy any Brother XL Printer, and receive a $20 gift card... Gift Card must be added to Shopping Cart, and offer will be reflected at Checkout.\" I should not have been charged for this card. Very unhappy.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 90118,
+      "title": "Gift message was not left with package, my brother had no idea who it was from, very disappointing.",
+      "text": "Should have given the gift message with the gift card so my brother knew who it was from.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 90351,
+      "title": "Attractive box and good gift for friends",
+      "text": "It's always a good gift to thank friends. No other item is better than an Amazon gift card I believe. The gift box is attractive and good appearance.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 90794,
+      "title": "Delivery",
+      "text": "Missed promised date",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 91556,
+      "title": "OK Gift Card",
+      "text": "OK Gift Card but the package was damaged",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 91578,
+      "title": "No value!",
+      "text": "Tried to purchase with the card. Said zero value.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 92743,
+      "title": "DIFFICULT TO USE. BRING BACK THE OLD FORMAT!",
+      "text": "DIFFICULT TO USE. BRING BACK THE OLD FORMAT!",
+      "llm_emotion": "anger",
+      "nrc_emotion": "fear",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 94271,
+      "title": "gift card",
+      "text": "It makes it quick and easy when I add money for my in app purchases",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 94520,
+      "title": "was not activated",
+      "text": "I was trying to buy some thing and kept on saying that the card was invalid",
+      "llm_emotion": "anger",
+      "nrc_emotion": "sadness",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 94930,
+      "title": "Came without being loaded",
+      "text": "I bought this as a gift for my mother on Christmas.  When she went to use it, it had no money on it.  I had bought others that worked fine, but this one did not.  Unfortunately it ruined a holiday  present for family.",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 94939,
+      "title": "Doesn't work",
+      "text": "It doesn't work",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 95229,
+      "title": "I'm glad I did not give this card away as a ...",
+      "text": "I'm glad I did not give this card away as a gift because I would be embarrassed to find out that it did not work for the recipient when it was supposed to. I've called the phone number on the back of the card and it is activated and contains the appropriate balance. The card, however, did not read and was neither &#34;accepted or declined&#34;, as the manager was telling me this.<br /><br />I've gone to the company that operates the card and it referenced that any redemption issues should notify the retailer that issued the card. So now I wait to find out how I can use my card with a balance but cannot be read and processed.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 95903,
+      "title": "great to use",
+      "text": "liked points",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 97409,
+      "title": "Easy to load, was what I needed to complete a transaction",
+      "text": "I was reminded that I can reload this card to help complete a purchase that I was short of only 50 cents. It loads money in an instant, and I was able to complete the transaction to receive item the very next day. I would like to thank the rep who reminded me I can do this, because I was frustrated and would have simply cancelled my order.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 98185,
+      "title": "not unusually",
+      "text": "unlike nothing, it was not special , I brought these for my spouse, he said the food was better in NJ",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "joy",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 99210,
+      "title": "One Star",
+      "text": "Not very happy went to use this and it was not loaded with the $25 :(",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 100927,
+      "title": "Having problems doing that",
+      "text": "Trying to cancel it",
+      "llm_emotion": "anger",
+      "nrc_emotion": "sadness",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 101906,
+      "title": "Great gift idea",
+      "text": "Came quickly, and they loved they could what they want",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 102406,
+      "title": "Did not work",
+      "text": "I gave this to my friend As a gift it says there is money on the card but it will not work<br />It shut down a system at a store when they tried to use it. When you call it says money is on there but they can’t use it",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 102765,
+      "title": "Good",
+      "text": "Ok",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 102814,
+      "title": "Leave yourself time to match gifts to recipients!",
+      "text": "Gift card tin arrived with Santa bag on time. However, the recipient information was tossed in the package without any reference to the actual gifts. Luckily I knew which tag went with which gift, and the gift values weee the same. However, this was a problem for gifts sent directly to recipients. The only gifts which were properly marked were the gift-wrapped items, but even those arrived with extra recipient tags adding to confusion. We should not have to build-a-gift at these prices. Amazon, you can do much better than this!",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 104241,
+      "title": "Five Stars",
+      "text": "Great",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 105657,
+      "title": "Scam",
+      "text": "Do not buy.  If you search gift car this comes up.  Thought I was buying 500 gift card to give away, instead it put it on my account.  I dealt with amazon chat and was told they are unable to return it or take it back and that I would have to purchase another gift card.  So I went and got my actual gift card went to checkout.... cannot use gift card balance to buy a gift card.  Ridiculous amazon cannot undo this purchase",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 109835,
+      "title": "It wasn't like the one on this page",
+      "text": "I wasn't impressed with the tin. It wasn't like the one on this page. Get candy crush jelly saga.",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 110675,
+      "title": "Refused at some restaurants",
+      "text": "I gave four of these as gifts for Christmas.  Some restaurants will not take them.  Doesn’t make for a very good gift if you’re limited on where you can use them.",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 112404,
+      "title": "Complete disregard to product quality.",
+      "text": "What a cutesy design on the product's page, right? I ordered this birthday one, and a graduation one. The graduation one was perfect; 5 stars, presentation, container, etc. This birthday one however, wasn't.<br /><br />They shipped it, WITHOUT THE OTHER CUPCAKE HALF.<br /><br />Someone shoved this half baked birthday card inside a brown envelope alongside a perfectly done one, and said \"Yep, this is fine!\"",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 112545,
+      "title": "Disappointed in the bent tin.",
+      "text": "I received this and it was so bent up that the cupcake tin wouldn’t close.  I was disappointed because it was for a child’s birthday gift.  I’ve purchased many gift cards and this is the only time I was unhappy with my purchase.",
+      "llm_emotion": "sadness",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 112943,
+      "title": "Nice Packaging of the Gift Card",
+      "text": "Loved the box it came in!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 113096,
+      "title": "how",
+      "text": "dont know  when to reload..never comes up how to use and reload..am i getting my moneys worth as i don't know..no feed back on this",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 113184,
+      "title": "Convenient service but still some confusion?",
+      "text": "The reload itself went fine but I had some problems re activating the reloaded card as my payment option. I'm still not sure how I got it to work...",
+      "llm_emotion": "surprise",
+      "nrc_emotion": "anger",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 115506,
+      "title": "Five Stars",
+      "text": "Great investment. I need more",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 117598,
+      "title": "Look and Wait",
+      "text": "difficult to find and no verification that I was successful in using online reload but overall OK",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 118955,
+      "title": "ok but I was offered a $10. gift promo ...",
+      "text": "ok  but I was offered a $10. gift promo for ordering it but did not receive it... and I ordered another $50.card with same promo and got card and no promotion., so I gave it a 3",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 119798,
+      "title": "One Star",
+      "text": "i couldnt pre-order mp3 album with it",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 122436,
+      "title": "What headline?",
+      "text": "I thought I could use it for subscription or something. Couldn't. Currently I don't know what to do with it or how to use it...",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 123544,
+      "title": "Loved how easy it is to use",
+      "text": "It was super easy to top up and super giftable",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 123616,
+      "title": "Nice product but…",
+      "text": "Purchased these to add to teacher appreciation gifts. The gift card holders/envelopes are really nice and make for very nice presentation. However I ordered three and one came destroyed. There are no holes in the plastic but it is stretched like someone purposely ripped the envelope open. The claim sticker is not removed so I don’t believe the gift card has been compromised. But if someone ordered these they are likely for a gift so why would you send one that is destroyed.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "joy",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 124705,
+      "title": "Amazon, really,  you can do better than this!!",
+      "text": "It is a rip off!  I should have read the reviews.  Amazon, really, you can do better than this.... my trust level for your company just went down.  This is the second time this month I have bought a non returnable item from Amazon.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 126733,
+      "title": "Great idea for a grad...",
+      "text": "Ordered 2...one was fine the other damaged.  I am sure the recent grad wont care...just frustrating.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 128395,
+      "title": "Connections Account not safe for gift cards",
+      "text": "We purchase gift cards every year from Cinemark and reload them throughout the year. We listened to the advertising and advice from Cinemark and added our giftcard to our connection account a little over a year ago. BIG MISTAKE! Cinemark does not have good protection from cyber hackers for their connection site. Thus our giftcard was hacked from the connections site and we lost $225.00 of our giftcard balance when that balance was stolen from their site and used over 800 miles a way to, I guess, have an expensive movie night out! I wish we had ignored Cinemark and their advertising as if we had just used the giftcard we purchased and taken it out of our wallet to pay and not linked the GC number to our account we would still have $225.01 that was haced.<br /><br />Cinemark also does not honor their guests. We have been treated rudely. Told musinformation, like that their loss prevention team would call yet that has never happened. Also asked to be able to speak to corporate about our situation only to have our requests fall on deaf ears. We filed a police report, but could not give completed information as we have been unable to speak with loss prevention about exactly what happened. How was our account hacked? Were other accounts hacked? So today we also filed a complaint against Cinemark USA Inc. For lack of customer service, failure to secure their site while protecting people's money and still advertising to people to add your GC to that unsafe site! Protect yourself. Buy your giftcard, keep it safe in your wallet and enjoy it from there. That way you keep what is yours! Don't let Cibemark lose what is yours! Trust me they won't do anything about it and they won't give the lost money back!",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 128934,
+      "title": "Three Stars",
+      "text": "This tin came all dented.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 129479,
+      "title": "I really like these gift cards",
+      "text": "I really like these gift cards. They are a lot nicer than the gift cards you can buy in the stores.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 130395,
+      "title": "A nightmare",
+      "text": "There is no simple way to get these v bucks onto a secondary account on ps4. Epic games and PlayStation are both no help in fixing the issue either",
+      "llm_emotion": "anger",
+      "nrc_emotion": "fear",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 131243,
+      "title": "Beautiful box for presentation.",
+      "text": "Kind of hard to open, would prefer it to open on the top.?",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 132494,
+      "title": "Would have been nice if the \"this is a gift\" line was noticed ...",
+      "text": "This was a gift item and the person receiving said there was no information from where it came.  She had to send an embarrassing text to find out &#34;who sent the Amazon gift card&#34;.  Would have been nice if the &#34;this is a gift&#34; line was noticed with to and from.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 132501,
+      "title": "One card was empty",
+      "text": "I have them as gifts but one card has nothing on it",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 132751,
+      "title": "DON'T BUY, UNUSABLE",
+      "text": "Worthless, can't be used towards any type of special spotify account (Student, family etc.).<br /><br />Also couldn't be returned after I discovered this trap.<br /><br />Spotify are a bunch of blood sucking leeches who deserve more 1 star ratings for this. I'm literally canceling my own spotify premium and switching to Pandora just because of this putrid experience.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 133998,
+      "title": "Limited use",
+      "text": "This gift card cannot be used at Starbucks in a Barnes and nobles store.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 135748,
+      "title": "Why don’t you include the amount?!",
+      "text": "I read reviews that the total wouldn’t be on the cards. I was fine with it. Until I learned I’d have to scratch every gift card code on the back to figure out the totals. Now they look used and have to give them to my kids teachers. Ridiculous. I’d imagine these are pretty loaded In the warehouse waiting to go out? Put the amount on the plastic bag they come in. It’s really not that complicated.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 136513,
+      "title": "Very nice.",
+      "text": "Arrived next day. Cool little tin. People really liked the packaging. Nice addition to the standard gift card. Definitely will buy again.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 137065,
+      "title": "Prepare to wait...",
+      "text": "They claim it will take 5 minutes... more like over an hour every time.. this is inconvenient  and almost funny because when the money goes directly through it should automatically  reflect on the balance... sorry amazon buy this process is broken..",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 137864,
+      "title": "Santa Gift Card Box",
+      "text": "Great gift card presentation device.  However, the paint on edges of the lids was marred/chipped.  Ordered replacements still not perfect.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 140507,
+      "title": "Envelopes were too small for the cards!",
+      "text": "The envelopes were too small for the cards",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 141116,
+      "title": "Was not activated",
+      "text": "Was not activated.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 141300,
+      "title": "Fun for birthdays",
+      "text": "Great birthday gift.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 141586,
+      "title": "Great",
+      "text": "Great.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 144315,
+      "title": "How much is on the card?",
+      "text": "I ordered several gift cards at different amounts.  They all came in the same package and there's no way to tell which one is which.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 144603,
+      "title": "Call the number on the back to register card DO NOT USE SITE",
+      "text": "2/3 worked fine trying to get Amazon to fix the last card because a google charge ended up there that wasn’t me. People are using fake sites to steal money so just call the number on the back of the card to avoid your money going missing and try to transfer it to a personal card if you can",
+      "llm_emotion": "fear",
+      "nrc_emotion": "anger",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 144676,
+      "title": "Five Stars",
+      "text": "real benefits, thanks",
+      "llm_emotion": "joy",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 146498,
+      "title": "Confusing!!",
+      "text": "Very confusing!",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 147566,
+      "title": "Gift card",
+      "text": "Awesome",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 147837,
+      "title": "I recieved only 16.",
+      "text": "Orginal order was for 18 cards, I recievd only 16.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    },
+    {
+      "row": 148143,
+      "title": "Could not use",
+      "text": "I don’t think it has anything on it",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 148302,
+      "title": "Oh boy!",
+      "text": "Good stuff.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 148765,
+      "title": "Four Stars",
+      "text": "Granddaughter was very happy with it.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 148854,
+      "title": "Horrible, horrible, horrible!! Do NOT order from this SHAM company!",
+      "text": "I don't know what kind of sweatshop these guys are running, but I've had problems with them since day ONE--I tried to give them ZERO STARS, but I HAD to give them at least one (which is being generous, in my opinion). I ordered my cards well in advance, and they still did not arrive on time. When I called the company to figure out what the issue was, they sent my phone call to somewhere in India--I was put on hold numerous times while they scrambled around trying to figure out what was going on with an order they had sent. When they finally had some information, they GUARANTEED a delivery date--the date passed with NO cards in the mail whatsoever. Apparently, this 'company' (and I use that term very loosely) takes 2+ weeks to process and send out FAULTY orders.<br /><br />When the individual DID receive the card it looked as though it had been used, and did not even WORK. When I explained to 'GiftCard Mall' what had happened, and told them that my mother said it looked like the card was in rough condition (the individual at the store the card was purchased for, in fact, confirmed the card HAD been reloaded--she had guessed it was multiple times from the shape the card was in), they implied that she was lying about it! The manager I spoke with on the phone was constantly interrupting me and trying to speak over me while I was trying to explain myself--trying to convince me that the United States Postal Service doesn't have tracking numbers. I told the manager that I was guaranteed a delivery date when I called previously, at the very least I expect a company to stick by the guarantees THEY offer, but apparently this company does NOT stick by their promises. The records they had of my previous conversation was entirely lacking, and instead of trying to resolve the issue the 'manager' (I say this because he was both condescending and unprofessional) then sent me off to get lost in the paperwork of some 'corporate office.'<br /><br />I love Amazon, and I love the convenience of online shopping--I would have been a FREQUENT customer of GiftCard Mall, but this business isn't a business at all. These guys take your order and your HARD-EARNED MONEY, and then throw an old, previously used giftcard in the mail hoping it's the right store, with the right amount, going to the right location--if not, oh well! It will be your fault...but only because you still chose to order from them after reading this.<br /><br />From now on, I will be buying my giftcards the old-fashioned way--if it ain't broke...",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 150017,
+      "title": "Very cute!",
+      "text": "Very cute and arrived on time.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "unique"
+    },
+    {
+      "row": 151039,
+      "title": "One Star",
+      "text": "This card was not activated for use. Could not return it.",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_primary_note": "tie"
+    },
+    {
+      "row": 151653,
+      "title": "That I can use it",
+      "text": "The one did not work.  Won’t buy again",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_primary_note": "zero_match"
+    }
+  ]
+}

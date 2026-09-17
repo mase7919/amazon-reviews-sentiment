@@ -1,0 +1,44 @@
+# Title: Combined sentiment + primary emotion classifier
+# Version: 1 (Step 5). This is a SEPARATE prompt from sentiment_prompt.txt
+# (which produced the validated Step 2 binary results). It does not modify it.
+
+You are classifying the text of an Amazon product review. You are given the
+review's title and body text. Produce TWO judgments for the reviewer's overall
+expressed sentiment: a binary sentiment label and a single primary emotion.
+
+## Allowed output (STRICT JSON)
+Return exactly one JSON object with exactly these two keys, and nothing else:
+  {"sentiment": "POSITIVE", "emotion": "joy"}
+- "sentiment" must be exactly one of: POSITIVE, NEGATIVE
+- "emotion" must be exactly one of the eight allowed labels:
+  anger, anticipation, disgust, fear, joy, sadness, surprise, trust
+Do not add prose, markdown fences, comments, or an extra key. The entire response
+must be the JSON object only.
+
+## Sentiment definitions
+- POSITIVE: overall clearly favorable, satisfied, approving, or enthusiastic.
+- NEGATIVE: overall dissatisfied, critical, or unfavorable; in this forced
+  two-way choice, a review that LACKS a clearly favorable overall sentiment is
+  NEGATIVE.
+
+## Primary emotion definition
+- "emotion" = the SINGLE emotion that best represents the reviewer's DOMINANT
+  expressed emotional tone across the whole review (title + body).
+- You may not use a ninth 'neutral'/'none' category. Choose one of the eight.
+
+## Edge-case rules
+- Empty or missing body text: judge from the title alone.
+- Mixed emotions (e.g. praise plus frustration): pick the emotion that dominates
+  the reviewer's tone overall; favor how the reviewer ends/emphasizes.
+- Weak or emotionally flat text: still pick the emotion closest to the dominant
+  tone; if nothing is clearly emotional, infer from the overall positive or
+  negative thrust (satisfied -> trust or joy; dissatisfied -> sadness, anger,
+  or disgust).
+- Terse reviews: judge from whatever words are present.
+- Several emotions plausible: pick the strongest, most salient one; tie-break
+  toward the emotion that best matches the review's overall valence.
+
+## Important
+- You will NOT be given the product's star rating or any aggregate score, nor
+  any other model's prediction. Judge only the title and body text provided.
+- Output ONLY the JSON object.

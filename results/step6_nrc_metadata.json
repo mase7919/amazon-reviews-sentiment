@@ -1,0 +1,31 @@
+{
+  "experiment": "Step 6 NRC word-list emotion on balanced sample (150)",
+  "lexicon": {
+    "name": "NRC Emotion Lexicon (EmoLex) v0.92 word-level",
+    "source": "https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm",
+    "file": "lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
+    "citation": "Mohammad & Turney (2013)"
+  },
+  "emotions": [
+    "anger",
+    "anticipation",
+    "disgust",
+    "fear",
+    "joy",
+    "sadness",
+    "surprise",
+    "trust"
+  ],
+  "same_rules_as_step5": true,
+  "tokenization": "lowercase; split on runs of non-alphabetic characters",
+  "scoring": "+1 per emotion per matched lexicon word (flag==1)",
+  "primary_rule": "highest total count",
+  "tie_rule": "first in canonical order among tied maxima",
+  "zero_match_rule": "fallback primary = trust, fallback_used=True (reported)",
+  "independent_of": [
+    "rating",
+    "ground_truth",
+    "LLM sentiment",
+    "LLM emotion"
+  ]
+}

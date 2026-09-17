@@ -1,0 +1,32 @@
+{
+  "experiment": "Step 5B NRC word-list primary emotion (first 100 records)",
+  "lexicon": {
+    "name": "NRC Emotion Lexicon (EmoLex) v0.92, word-level",
+    "source": "https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm",
+    "file": "lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
+    "citation": "Mohammad & Turney (2013), Computational Intelligence 29(3), 524-545",
+    "license": "non-commercial research / educational use (see lexicon/LICENSE-NOTICE.md)"
+  },
+  "emotions": [
+    "anger",
+    "anticipation",
+    "disgust",
+    "fear",
+    "joy",
+    "sadness",
+    "surprise",
+    "trust"
+  ],
+  "tokenization": "lowercase; split on runs of non-alphabetic characters",
+  "scoring": "+1 per emotion per matched lexicon word (association flag==1)",
+  "primary_rule": "highest total count",
+  "tie_rule": "ties -> first in canonical order (anger, anticipation, disgust, fear, joy, sadness, surprise, trust) among tied maxima",
+  "zero_match_rule": "fallback primary = 'trust', fallback_used=True (reported)",
+  "independent_of": [
+    "rating",
+    "LLM prediction",
+    "LLM emotion",
+    "expected sentiment"
+  ],
+  "num_reviews": 100
+}

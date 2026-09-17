@@ -1,0 +1,11 @@
+{
+  "baseline_prompt": "prompts/sentiment_prompt.txt",
+  "combined_prompt": "prompts/sentiment_emotion_prompt.txt",
+  "note": "Combined-prompt sentiment vs original Step 2 prediction. Original values are NOT modified.",
+  "total_compared": 100,
+  "sentiment_changed": 0,
+  "sentiment_unchanged": 100,
+  "failed_calls": 0,
+  "rows_without_step2": 0,
+  "differences": []
+}
